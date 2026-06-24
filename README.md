@@ -4,15 +4,15 @@ A CEO operating clone, shipped as a **Hermes profile distribution**. Ernest conn
 
 It is a thin curation + safety layer over [Hermes](https://github.com/NousResearch/hermes-agent) — not a custom app, CRM, or model. Capabilities come from the ecosystem; Ernest decides *which* and enforces *draft-first*.
 
-## 60-second start
+## Start
+
+One command. It installs Hermes (if needed), installs Ernest, connects a model by browser login, and opens onboarding — which handles apps, memory, voice, and skills in the chat.
 
 ```bash
-hermes profile install /path/to/ernest --name ernest --alias
-# add COMPOSIO_API_KEY, OBSIDIAN_VAULT_PATH, and a model key to the profile .env
-ernest setup
-bash scripts/install-skills.sh
-ernest chat -s ernest-bootstrap
+curl -fsSL https://raw.githubusercontent.com/romaluev/ernest/main/setup.sh | bash
 ```
+
+That's the whole setup. No config files to edit, no skills to install by hand. The only thing you can't skip is logging into a model (Ernest needs one to think) and clicking "authorize" on your own apps when Ernest hands you a connect link.
 
 ## Documentation
 
@@ -29,6 +29,7 @@ ernest chat -s ernest-bootstrap
 ## Layout
 
 ```
+setup.sh           one-line installer (Hermes + profile + model + onboarding)
 SOUL.md            identity + hard rules (draft-first)
 config.yaml        Composio MCP, Obsidian memory, curator, gate, delegation
 distribution.yaml  Hermes manifest (requires Composio + Obsidian)
