@@ -5,9 +5,9 @@
       "name": "ernest-daily-brief",
       "schedule": { "kind": "cron", "expr": "0 8 * * 1-5", "display": "weekdays at 08:00" },
       "schedule_display": "weekdays at 08:00",
-      "skills": ["ernest-bootstrap", "ernest-library-index"],
+      "skills": ["ernest-bootstrap", "ernest-watch", "ernest-library-index"],
       "skill": "ernest-bootstrap",
-      "prompt": "Read the live inbox, calendar, and HubSpot pipeline via the connected tools. Write a short morning brief to the Obsidian vault under Ernest/00-Daily/. Surface only items needing the CEO today. Draft-only. If nothing needs attention, reply [SILENT].",
+      "prompt": "Set ERNEST_CRON_JOB=ernest-daily-brief. Read Ernest/00-Watch/ cards from the last 24h and the live inbox, calendar, and HubSpot pipeline. Write a short morning brief to Ernest/00-Daily/. Surface only items needing the CEO today. Remind-only — do not draft email or CRM content. If nothing needs attention, reply [SILENT].",
       "deliver": "local",
       "no_agent": false,
       "enabled": false,
@@ -15,13 +15,27 @@
       "repeat": { "times": null, "completed": 0 }
     },
     {
-      "id": "ernest-dropped-ball-scan",
-      "name": "ernest-dropped-ball-scan",
+      "id": "ernest-ambient-watch",
+      "name": "ernest-ambient-watch",
       "schedule": { "kind": "cron", "expr": "0 11,16 * * 1-5", "display": "weekdays 11:00 and 16:00" },
       "schedule_display": "weekdays 11:00 and 16:00",
-      "skills": ["ernest-bootstrap"],
-      "skill": "ernest-bootstrap",
-      "prompt": "Scan open Outlook threads and HubSpot deals for stalled follow-ups and unmet promises. Produce prioritized ownership cards. Draft replies but do not send. If nothing is stalled, reply [SILENT].",
+      "skills": ["ernest-watch", "ernest-bootstrap"],
+      "skill": "ernest-watch",
+      "prompt": "Set ERNEST_CRON_JOB=ernest-ambient-watch. Run ernest-watch: read memory/standing-concerns.md, execute each enabled concern's watch-half (detect only). Write reminder cards to Ernest/00-Watch/ with one-tap draft triggers. NEVER draft email, messages, or CRM writes in this job. If all concerns are clean, reply [SILENT].",
+      "deliver": "local",
+      "no_agent": false,
+      "enabled": false,
+      "state": "paused",
+      "repeat": { "times": null, "completed": 0 }
+    },
+    {
+      "id": "ernest-hubspot-hygiene",
+      "name": "ernest-hubspot-hygiene",
+      "schedule": { "kind": "cron", "expr": "0 6 * * 1", "display": "Mondays at 06:00" },
+      "schedule_display": "Mondays at 06:00",
+      "skills": ["hubspot-hygiene", "ernest-bootstrap"],
+      "skill": "hubspot-hygiene",
+      "prompt": "Set ERNEST_CRON_JOB=ernest-hubspot-hygiene. Run hubspot-hygiene per ernest.yaml hygiene_policy: scan HubSpot for junk symbols, trim, exact dedupe (auto-apply only if dry_run=false and approved=true; else preview). Propose translations, status, priority, fuzzy dedupe as a reviewable batch. Snapshot before any live write. If nothing to fix, reply [SILENT].",
       "deliver": "local",
       "no_agent": false,
       "enabled": false,
@@ -35,7 +49,7 @@
       "schedule_display": "Fridays at 17:00",
       "skills": ["ernest-use-case-author"],
       "skill": "ernest-use-case-author",
-      "prompt": "Review this week's sessions and corrections. Use the Hermes Dojo to rank weak skills, then propose at most one improvement (install a vetted skill, author one with skill-creator, or patch via self-evolution). Output a reviewable proposal with a rollback. Adopt nothing without CEO approval.",
+      "prompt": "Set ERNEST_CRON_JOB=ernest-self-improve. Review this week's sessions and corrections. Use the Hermes Dojo to rank weak skills, then propose at most one improvement (install a vetted skill, author one with skill-creator, or patch via self-evolution). Output a reviewable proposal with a rollback. Adopt nothing without CEO approval.",
       "deliver": "local",
       "no_agent": false,
       "enabled": false,
@@ -43,5 +57,5 @@
       "repeat": { "times": null, "completed": 0 }
     }
   ],
-  "updated_at": "2026-06-24T00:00:00Z"
+  "updated_at": "2026-06-25T00:00:00Z"
 }

@@ -20,6 +20,9 @@ required=(
   "memory/company-core.md"
   "memory/ceo-persona.md"
   "memory/north-star.md"
+  "memory/standing-concerns.md"
+  "skills/_meta/ernest-watch/SKILL.md"
+  "skills/playbooks/hubspot-hygiene/SKILL.md"
 )
 for f in "${required[@]}"; do
   [[ -f "$ERNEST_ROOT/$f" ]] || { echo "missing: $f" >&2; exit 1; }
@@ -40,10 +43,12 @@ for needle in ["COMPOSIO_API_KEY", "OBSIDIAN_VAULT_PATH"]:
         raise SystemExit(f"distribution.yaml missing env requirement: {needle}")
 
 jobs = json.loads((root / "cron" / "jobs.json").read_text())["jobs"]
-if len(jobs) < 3:
-    raise SystemExit("expected >=3 cron jobs")
+if len(jobs) < 4:
+    raise SystemExit("expected >=4 cron jobs")
 for j in jobs:
-    if "[SILENT]" not in j["prompt"] and j["id"] != "ernest-self-improve":
+    if "[SILENT]" not in j["prompt"] and j["id"] not in (
+        "ernest-self-improve",
+    ):
         raise SystemExit(f"ambient job should be quiet-by-default: {j['id']}")
 
 # No mock/seed/garbage left behind

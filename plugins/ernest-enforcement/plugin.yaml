@@ -1,6 +1,6 @@
 name: ernest-enforcement
-version: 2.0.0
-description: Draft-first gate — blocks live sends/publishes/CRM mutations (including Composio router calls) and enforces filesystem scope until the CEO approves.
+version: 2.1.0
+description: Draft-first gate — blocks live sends/publishes/CRM mutations. Bounded exception for mechanical HubSpot hygiene cron only. Filesystem scope enforcement.
 author: Notiky
 kind: standalone
 provides_hooks:

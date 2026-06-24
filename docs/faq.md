@@ -8,9 +8,8 @@ real accounts.
 It works your mail, CRM, calendar, Slack, and Google Sheets the way a chief of
 staff would: find dropped threads, draft follow-ups in your voice, reconcile your
 inbox with HubSpot, sync a list with a sheet, source new contacts, loop teammates
-into the right threads, and turn Slack into transparent task tracking. Seven of
-these ship ready to use — see [daily-use.md](daily-use.md). It connects to 500+
-apps through Composio, so the surface grows as you connect more.
+into the right threads, and turn Slack into transparent task tracking. Eight
+playbooks ship ready — see [daily-use.md](daily-use.md).
 
 ### What can't it do?
 
@@ -21,14 +20,24 @@ deletions, and permission changes are off-limits to automation by design and sta
 manual. It is not a CRM, a model, or a custom app — it's a curation and safety
 layer over the open-source Hermes agent.
 
-### Will it ever send something without me?
+### Will it ever send or write without me?
 
-No. Every external action — sending email, writing to HubSpot, editing a sheet,
-posting in Slack — is **blocked until you approve it**. This is the draft-first
-gate, and it's enforced in code, not a setting you can forget to turn on. Ernest
-shows you the exact thing it wants to do (recipient, subject, body, or the precise
-record change); nothing leaves your accounts until you say yes. Reads, summaries,
-and drafts happen freely; anything that touches the outside world waits.
+**Email, Slack, sheets:** No. Blocked until you approve.
+
+**HubSpot:** Almost always blocked until you approve. **One exception:** after you
+opt into `hygiene_policy` (`dry_run: false`, `approved: true`), the Monday hygiene
+cron may auto-fix **mechanical** fields only — strip junk symbols, trim whitespace,
+exact dedupe on name/company fields. Translations, status, priority, fuzzy dedupe,
+and deal creation stay in review batches. Snapshots and audit log every run.
+
+**Watch crons:** Remind only. They never draft email or CRM content. Tap **draft these**
+on a card when you want drafts prepared.
+
+### What happens when I'm away?
+
+Watch crons keep running (if gateway is up). They write reminder cards and the
+morning brief — **no drafts, no sends**. You return to a list of what slipped, not
+actions you didn't authorize. `[SILENT]` on quiet days.
 
 ### What does it need from me to start?
 
@@ -36,13 +45,6 @@ Three things, and only the first two are unavoidable: a model login (so it can r
 — handled by the installer), and a click on the authorize link for the first app a
 task needs (nobody can log into your accounts for you). The third is telling it
 what you want off your plate. That's onboarding — see [onboarding.md](onboarding.md).
-
-### What happens when I'm away?
-
-The ambient jobs (morning brief, dropped-ball scan) keep watching and prepare
-drafts and cards, but **nothing sends**. You come back to a tidy set of things
-waiting for approval, not a pile of emails you didn't authorize. Ambient jobs only
-run while the gateway is up, and they're silent on quiet days.
 
 ### Where does my data live? Is it private?
 
@@ -64,11 +66,10 @@ your live accounts — fix it at the source (mail/HubSpot) and re-ask.
 
 After your first approved action, Ernest closes the session by telling you what
 just shipped, naming two or three high-value next steps it actually saw in your
-data (stalled threads, a drifting list, an intro you keep forgetting), and offering
-to turn on the morning brief and dropped-ball scan. From then on you don't follow a
-plan: ask for anything in plain language, or ask "what can you do?" any time, and it
-maps the request to a play or proposes a new one. Connecting apps and adding
-recurring workflows both happen by asking — you never configure anything.
+data (stalled threads, a drifting list, an intro you keep forgetting), offers to
+turn on watch crons (`ernest-daily-brief`, `ernest-ambient-watch`), and explains:
+Ernest **watches and reminds** by default; say **`draft these`** or ask when you
+want drafts prepared.
 
 ### How do I add a new kind of task or use-case?
 

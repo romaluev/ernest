@@ -1,33 +1,37 @@
 ---
 name: account-followup-recovery
-description: Use when the CEO names one account/company/relationship and wants every dropped follow-up recovered (e.g. "<Company> follow up — find where I went dark"). Scans email + HubSpot for that account, finds stalled threads and unmet promises, drafts recoveries. Draft-first.
-version: 1.0.0
+description: Watch for dropped follow-ups on one account or all important contacts (remind). Draft recoveries on-ask only. Default standing concern for "find where I dropped the ball".
+version: 1.1.0
 author: Notiky
 license: MIT
 metadata:
   hermes:
-    tags: [ernest, playbook, email, crm, followup]
-    related_skills: [inbox-prospect-followup]
+    tags: [ernest, playbook, email, crm, followup, watch]
+    related_skills: [ernest-watch, inbox-prospect-followup]
 ---
 
 # Recover dropped follow-ups for one account
 
-A focused dropped-ball scan scoped to a single company/relationship across mail
-and CRM. Finds where the CEO went dark or made a promise and never closed it.
-
 ## Parameters
 ```yaml
-account:         # company or person — resolve to domains + HubSpot company/contacts
-staleness:       # default: no reply from us in 7+ business days on an open thread
-include:         # threads | deals | promises (default: all three)
+account:         # company, person, or "*" for all important contacts
+staleness:       # default 7 business days without our reply
+include:         # threads | deals | promises (default all)
 ```
 
-## Steps
-1. Resolve `account` to email domains and the HubSpot company + associated contacts/deals.
-2. Pull open threads (no reply from us past `staleness`), open deals with no recent activity, and explicit promises ("I'll send…", "let me check…") that were never fulfilled.
-3. Produce prioritized ownership cards: contact/thread, what's owed, how long stalled, suggested next step.
-4. Draft the recovery message per item, in the CEO's voice, referencing the real last exchange. Batch for approval.
-5. Write the recovered list to `Ernest/Accounts/<account>.md`. Gate blocks sends and any HubSpot write until approved.
+## Watch half
+
+1. Resolve `account` (or scan priority contacts if `*`).
+2. Find open threads past `staleness`, quiet deals, unfulfilled promises.
+3. Ownership cards: contact/thread, owed, days stalled — **no draft messages**.
+4. If clean, return clean.
+
+## Draft half
+
+1. Use card items or re-scan.
+2. Draft recovery per item in CEO voice from real last exchange.
+3. Write `Ernest/Accounts/<account>.md`. Batch for approval.
+4. Gate blocks sends and HubSpot writes.
 
 ## When NOT to use
-Account-wide cold prospecting (use `contact-sourcing`). General inbox triage (that's the daily brief / dropped-ball cron).
+Cold prospecting. Use daily brief for general triage summaries.

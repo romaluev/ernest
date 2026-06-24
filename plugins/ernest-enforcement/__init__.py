@@ -15,8 +15,9 @@ import json
 import logging
 import os
 import re
+import time
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Set
 
 logger = logging.getLogger("ernest.enforcement")
 
@@ -61,6 +62,177 @@ _SLUG_KEYS = {
     "tool_slug", "slug", "tool", "tool_name", "toolname", "action",
     "action_name", "recipe_slug", "name", "function", "function_name",
 }
+
+# HubSpot hygiene — sole bounded auto-write exception (mechanical fields only).
+_HYGIENE_JOB_ID = "ernest-hubspot-hygiene"
+_HYGIENE_ALLOWED_SLUGS = {"HUBSPOT_UPDATE_CONTACT"}
+_HYGIENE_FORBIDDEN_SLUG_RE = re.compile(
+    r"(?i)HUBSPOT_(CREATE|DELETE|MERGE|ASSOCIATE|IMPORT|BATCH)"
+)
+_HYGIENE_PROP_KEYS = {
+    "properties", "property", "fields", "field", "data", "payload", "contact_properties",
+}
+_hygiene_policy_cache: Optional[Dict[str, Any]] = None
+
+
+def _parse_yaml_bool(val: str) -> bool:
+    return val.strip().lower() in ("true", "yes", "1")
+
+
+def _parse_yaml_list_block(text: str, key: str) -> List[str]:
+    """Extract `- item` lines under ``key:`` in a yaml-ish block."""
+    items: List[str] = []
+    lines = text.splitlines()
+    in_block = False
+    base_indent = 0
+    for raw in lines:
+        if not in_block:
+            if re.match(rf"^\s*{re.escape(key)}\s*:", raw):
+                in_block = True
+                base_indent = len(raw) - len(raw.lstrip())
+            continue
+        if not raw.strip():
+            continue
+        indent = len(raw) - len(raw.lstrip())
+        if indent <= base_indent and ":" in raw.strip():
+            break
+        m = re.match(r"^\s*-\s+(.+?)\s*$", raw)
+        if m:
+            items.append(m.group(1).strip().strip('"').strip("'"))
+    return items
+
+
+def _load_hygiene_policy(ernest_root: Optional[str] = None) -> Dict[str, Any]:
+    global _hygiene_policy_cache
+    if _hygiene_policy_cache is not None:
+        return _hygiene_policy_cache
+    default: Dict[str, Any] = {
+        "job_id": _HYGIENE_JOB_ID,
+        "dry_run": True,
+        "approved": False,
+        "mechanical_fields": {"company", "firstname", "lastname", "jobtitle"},
+        "active_run_marker": "logs/hygiene-active-run.json",
+    }
+    root = ernest_root or _ernest_root()
+    if not root:
+        _hygiene_policy_cache = default
+        return default
+    path = os.path.join(root, "ernest.yaml")
+    if not os.path.isfile(path):
+        _hygiene_policy_cache = default
+        return default
+    try:
+        text = open(path, "r", encoding="utf-8").read()
+    except OSError:
+        _hygiene_policy_cache = default
+        return default
+
+    policy = dict(default)
+    m = re.search(r"^\s*dry_run\s*:\s*(\S+)", text, re.MULTILINE)
+    if m:
+        policy["dry_run"] = _parse_yaml_bool(m.group(1))
+    m = re.search(r"^\s*approved\s*:\s*(\S+)", text, re.MULTILINE)
+    if m:
+        policy["approved"] = _parse_yaml_bool(m.group(1))
+    m = re.search(r'^\s*active_run_marker\s*:\s*["\']?([^"\']+)["\']?', text, re.MULTILINE)
+    if m:
+        policy["active_run_marker"] = m.group(1).strip()
+    fields = _parse_yaml_list_block(text, "mechanical_fields")
+    if fields:
+        policy["mechanical_fields"] = set(f.lower() for f in fields)
+    _hygiene_policy_cache = policy
+    return policy
+
+
+def _hygiene_active_run_valid(policy: Dict[str, Any], ernest_root: str) -> bool:
+    marker_rel = policy.get("active_run_marker", "logs/hygiene-active-run.json")
+    marker_path = os.path.join(ernest_root, marker_rel)
+    if not os.path.isfile(marker_path):
+        return False
+    try:
+        with open(marker_path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, json.JSONDecodeError):
+        return False
+    if data.get("job_id") != policy.get("job_id", _HYGIENE_JOB_ID):
+        return False
+    if not data.get("mechanical_only"):
+        return False
+    started = data.get("started_at", "")
+    try:
+        ts = datetime.fromisoformat(started.replace("Z", "+00:00"))
+        age = time.time() - ts.timestamp()
+        if age > 3600:
+            return False
+    except (ValueError, TypeError):
+        return False
+    return True
+
+
+def _collect_property_names(obj: Any, depth: int = 0) -> Set[str]:
+    """Pull HubSpot property/field names from nested execute-tool args."""
+    names: Set[str] = set()
+    if depth > 8:
+        return names
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            kl = str(k).lower()
+            if kl in _HYGIENE_PROP_KEYS and isinstance(v, dict):
+                for pk in v:
+                    if isinstance(pk, str):
+                        names.add(pk.lower())
+            elif kl in ("property", "field", "name") and isinstance(v, str):
+                names.add(v.lower())
+            else:
+                names |= _collect_property_names(v, depth + 1)
+    elif isinstance(obj, list):
+        for item in obj:
+            names |= _collect_property_names(item, depth + 1)
+    return names
+
+
+def _hygiene_may_auto_apply(
+    tool_name: str,
+    args: Optional[Dict[str, Any]] = None,
+) -> bool:
+    """True only when a mechanical HubSpot hygiene update may bypass draft-only."""
+    upper = (tool_name or "").upper()
+    if upper not in _COMPOSIO_EXEC_TOOLS:
+        return False
+
+    slugs = [s.upper() for s in _collect_slugs(args or {})]
+    if not slugs:
+        return False
+    for slug in slugs:
+        if _HYGIENE_FORBIDDEN_SLUG_RE.search(slug):
+            return False
+        if slug not in _HYGIENE_ALLOWED_SLUGS:
+            return False
+
+    ernest_root = _ernest_root()
+    if not ernest_root:
+        return False
+
+    policy = _load_hygiene_policy(ernest_root)
+    if policy.get("dry_run", True) or not policy.get("approved", False):
+        return False
+
+    cron_job = os.environ.get("ERNEST_CRON_JOB", "")
+    if cron_job != policy.get("job_id", _HYGIENE_JOB_ID):
+        return False
+
+    if not _hygiene_active_run_valid(policy, ernest_root):
+        return False
+
+    allowed_fields = policy.get("mechanical_fields") or set()
+    if not isinstance(allowed_fields, set):
+        allowed_fields = {str(x).lower() for x in allowed_fields}
+
+    prop_names = _collect_property_names(args or {})
+    if prop_names and not prop_names.issubset(allowed_fields):
+        return False
+
+    return True
 
 
 def _slug_is_mutation(slug: str) -> bool:
@@ -203,6 +375,8 @@ def _draft_only_block(
 
     # 2. Composio execution wrappers — inspect the action slug(s) in the args.
     if upper in _COMPOSIO_EXEC_TOOLS:
+        if _hygiene_may_auto_apply(name, args):
+            return None
         for slug in _collect_slugs(args or {}):
             if _slug_is_mutation(slug):
                 return {

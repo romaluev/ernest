@@ -14,25 +14,23 @@ metadata:
 
 Ernest's capability comes from **installed, vetted skills**, not hand-written ones. Before designing anything, find it here. Install via `scripts/install-skills.sh` or the commands below.
 
-## Playbooks (ship ready-to-use, parametrized)
+## Playbooks (ship ready — watch + draft halves)
 
-These are bundled in `skills/playbooks/` — no install needed. Each is a draft-first,
-parametrized workflow over the connected tools. Match the CEO's ask to a playbook,
-fill its parameters from the request, and run it. They are templates, not hardcoded
-to any one person or company — any CEO scales by reusing them with new parameters.
+Bundled in `skills/playbooks/`. **Watch half** runs on `ernest-ambient-watch` (remind
+only). **Draft half** runs when the CEO asks or taps `draft these` on a card.
 
-| CEO says (example) | Playbook |
-|---|---|
-| "Add <person> to all <segment> threads" | `loop-in-teammate` |
-| "Find all <profile> in my mail and follow up" | `inbox-prospect-followup` |
-| "<Company> follow-up — find where I went dark" | `account-followup-recovery` |
-| "Sync my <segment> email with <owner>'s HubSpot list" | `hubspot-list-reconcile` |
-| "Keep <list> in sync with this Google Sheet <url>" | `sheet-contact-sync` |
-| "Source ex-<org> people in <place> for partnership/hire" | `contact-sourcing` |
-| "Make transparent task tracking from Slack" | `slack-task-tracking` |
+| CEO says (example) | Playbook | Watch (cron) |
+|---|---|---|
+| "Add \<person\> to all \<segment\> threads" | `loop-in-teammate` | missing teammate on segment |
+| "Find \<profile\> in mail and follow up" | `inbox-prospect-followup` | new matches, no follow-up |
+| "\<Company\> — where I went dark" | `account-followup-recovery` | stalled threads/promises |
+| "Sync \<segment\> with \<owner\>'s HubSpot list" | `hubspot-list-reconcile` | inbox vs list drift |
+| "Keep \<list\> in sync with this Sheet" | `sheet-contact-sync` | sheet vs mail/CRM drift |
+| "Source ex-\<org\> in \<place\>" | `contact-sourcing` | *(on-ask only)* |
+| "Slack → who-owns-what" | `slack-task-tracking` | stale/ownerless tasks |
+| HubSpot cleanup (symbols, dedupe, translate) | `hubspot-hygiene` | separate Monday cron |
 
-If a request almost fits a playbook, run it with adjusted parameters. If a new
-pattern repeats, promote it via `ernest-use-case-author` (don't improvise raw calls).
+Standing concerns live in `memory/standing-concerns.md` — CEO sets by asking; see `ernest-watch`.
 
 ## Operating use cases
 
@@ -44,7 +42,8 @@ pattern repeats, promote it via `ernest-use-case-author` (don't improvise raw ca
 | Calendar / scheduling | Outlook Calendar automation | Composio + calendar skill |
 | Team coordination + tasks | Slack automation + Linear/Notion + Hermes kanban | Composio + kanban (bundled) |
 | Sourcing clients & talent | Lead Research Assistant + browser_use (bundled) | install + `hermes plugins enable browser/browser_use` |
-| Daily brief / ambient watch | Daily Briefing pattern + zero-token cron | see `cron/jobs.json` |
+| Daily brief / ambient watch | `ernest-watch` + cron | see `cron/jobs.json` |
+| HubSpot mechanical hygiene | `hubspot-hygiene` cron | Mondays 06:00, preview until approved |
 
 ## Meta / self-improvement
 

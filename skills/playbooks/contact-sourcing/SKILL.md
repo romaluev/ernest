@@ -1,36 +1,35 @@
 ---
 name: contact-sourcing
-description: Use when the CEO wants NEW contacts sourced to a brief (e.g. "find ex-<org> people in <place> for partnership/hire", or "people like <LinkedIn URL>"). Uses web/LinkedIn research to build an enriched, deduped target list and drafts first-touch outreach. Draft-first.
-version: 1.0.0
+description: On-ask only (no watch half). Source NEW contacts to a brief via web/LinkedIn; draft first-touch outreach. Never sends without approval.
+version: 1.1.0
 author: Notiky
 license: MIT
 metadata:
   hermes:
-    tags: [ernest, playbook, sourcing, research, browser]
-    related_skills: [inbox-prospect-followup, hubspot-list-reconcile]
+    tags: [ernest, playbook, sourcing, research]
+    related_skills: [inbox-prospect-followup]
 ---
 
 # Source new contacts to a brief
 
-Find people the CEO doesn't already know, matching a profile, for partnership or
-hiring. Reuses web search + the `browser_use` plugin and/or Composio LinkedIn —
-this skill orchestrates them, it does not scrape on its own.
+Research push — not a standing watch. CEO asks; Ernest runs draft-half only.
 
 ## Parameters
 ```yaml
-brief:           # who — e.g. "ex-Skolkovo founders now in the USA", "people like <LinkedIn URL>"
+brief:
 goal:            # partnership | hire | sales | investor
-count:           # how many to surface (default: 15)
-source:          # linkedin | web | both (default: both)
-exclude:         # optional: already in HubSpot / already emailed
+count:           # default 15
+source:          # linkedin | web | both
+exclude:
 ```
 
-## Steps
-1. Turn `brief` into concrete search criteria (org, role, geography, signals). If a LinkedIn URL is given, derive the pattern from that profile.
-2. Source candidates via web search / `browser_use` / Composio LinkedIn. Capture name, role, company, link, and the evidence they match.
-3. Dedupe against `exclude` (HubSpot + prior mail) so the CEO never re-contacts someone.
-4. Write the enriched list to `Ernest/Sourcing/<goal>.md` and show it ranked, with the match evidence — flag anything low-confidence rather than inventing it.
-5. Draft a first-touch message per person, tailored to the evidence, in the CEO's voice. Batch for approval. Gate blocks sends.
+## Draft half (only mode)
+
+1. Turn `brief` into search criteria.
+2. Source via web / `browser_use` / Composio LinkedIn with evidence.
+3. Dedupe against `exclude`.
+4. Write `Ernest/Sourcing/<goal>.md`.
+5. Draft first-touch per person. Batch for approval.
 
 ## When NOT to use
-Following up with people already in the inbox (use `inbox-prospect-followup`). Any source that needs a login the CEO hasn't connected — say so, don't fake results.
+Inbox follow-ups (`inbox-prospect-followup`). Unconnected login required — say so.

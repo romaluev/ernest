@@ -49,3 +49,35 @@ quality:
     - claim_grounding
     - specificity
     - human_approval
+
+# Watch-first: ambient crons remind; drafts only on explicit CEO ask.
+watchers:
+  mode: remind_only
+  concerns_file: "memory/standing-concerns.md"
+  default_staleness_days: 7
+  card_dir: "${OBSIDIAN_VAULT_PATH}/Ernest/00-Watch"
+  card_trigger_phrase: "draft these"
+
+# HubSpot hygiene cron — sole bounded auto-write exception (mechanical only).
+hygiene_policy:
+  job_id: ernest-hubspot-hygiene
+  dry_run: true
+  approved: false
+  mechanical_allowlist:
+    - strip_junk_symbols
+    - trim_whitespace
+    - exact_dedupe
+  mechanical_fields:
+    - company
+    - firstname
+    - lastname
+    - jobtitle
+  propose_only:
+    - translate_company_names
+    - infer_status
+    - infer_priority
+    - fuzzy_dedupe
+    - create_deals
+  snapshot_dir: "${OBSIDIAN_VAULT_PATH}/Ernest/Hygiene/snapshots"
+  audit_log: "logs/hygiene-audit.log"
+  active_run_marker: "logs/hygiene-active-run.json"

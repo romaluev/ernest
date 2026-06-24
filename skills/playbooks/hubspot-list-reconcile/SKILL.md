@@ -1,35 +1,37 @@
 ---
 name: hubspot-list-reconcile
-description: Use when the CEO wants email contacts reconciled with a HubSpot list or owner's book (e.g. "sync my <region> email with <owner>'s HubSpot list"). Finds who's in mail but missing/stale in HubSpot and drafts the CRM updates. Draft-first — HubSpot writes need approval.
-version: 1.0.0
+description: Watch for inbox vs HubSpot list drift (remind). Draft CRM catch-up on-ask. HubSpot writes need approval except hubspot-hygiene mechanical path.
+version: 1.1.0
 author: Notiky
 license: MIT
 metadata:
   hermes:
-    tags: [ernest, playbook, crm, hubspot, reconcile]
-    related_skills: [account-followup-recovery, sheet-contact-sync]
+    tags: [ernest, playbook, crm, hubspot, reconcile, watch]
+    related_skills: [ernest-watch, sheet-contact-sync, hubspot-hygiene]
 ---
 
 # Reconcile inbox ↔ HubSpot list
 
-HubSpot is the source of truth, but the CEO's inbox runs ahead of it. This finds
-the gap for a segment and prepares the CRM to catch up. Nothing writes to HubSpot
-without approval.
-
 ## Parameters
 ```yaml
-segment:         # which contacts — e.g. "South Korea", "press", a deal stage
-hubspot_target:  # a HubSpot list name OR an owner whose book to reconcile against
-window:          # default: last 12 months of mail
-fields:          # which fields to set/update (default: stage, owner, last_contacted, notes)
+segment:         # e.g. "South Korea", "press"
+hubspot_target:  # list name OR owner book
+window:          # default 12 months mail
+fields:          # default stage, owner, last_contacted, notes
 ```
 
-## Steps
-1. Pull the `hubspot_target` membership (list or owner's contacts) via HubSpot.
-2. Pull inbox contacts matching `segment` with real exchanges.
-3. Diff: (a) in mail, missing from HubSpot; (b) in both but stale (last_contacted/stage out of date); (c) in HubSpot, gone cold.
-4. Present the diff as a table and write it to `Ernest/CRM/<segment>-reconcile.md`.
-5. Draft the HubSpot mutations (create contact, update stage/owner/last_contacted, add note) as an approval batch. The gate blocks every CREATE/UPDATE until the CEO approves.
+## Watch half
+
+1. Pull `hubspot_target` membership and inbox contacts for `segment`.
+2. Diff: missing in HubSpot, stale fields, gone cold in HubSpot.
+3. Reminder card with diff table — **no CRM writes, no drafts**.
+4. Write detect-only to `Ernest/CRM/<segment>-drift.md`.
+
+## Draft half
+
+1. Use drift from card or re-diff.
+2. Draft HubSpot mutations (create/update/note) as approval batch.
+3. Gate blocks every CREATE/UPDATE until CEO approves.
 
 ## When NOT to use
-Syncing against an external spreadsheet (use `sheet-contact-sync`). Bulk deleting CRM records (out of scope — propose via use-case-author).
+External spreadsheet sync (`sheet-contact-sync`). Bulk delete.

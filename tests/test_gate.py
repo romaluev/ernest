@@ -9,8 +9,11 @@ read of secrets?"  Exit non-zero on any failure.
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
+import re
 import sys
+from datetime import datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLUGIN = os.path.join(ROOT, "plugins", "ernest-enforcement")
@@ -156,8 +159,86 @@ try:
 finally:
     shutil.rmtree(_tmp, ignore_errors=True)
 
+# ── Hygiene exception — bounded mechanical HubSpot auto-apply only ─────────────
+print("hygiene exception — mechanical HubSpot only when fully armed:")
+_hy_tmp = tempfile.mkdtemp(prefix="ernest_hy_")
+try:
+    hy_root = os.path.join(_hy_tmp, "prof")
+    os.makedirs(os.path.join(hy_root, "logs"))
+    hy_yaml = (ROOT + "/ernest.yaml")  # base copy
+    import shutil as _sh
+    _sh.copy(os.path.join(ROOT, "ernest.yaml"), os.path.join(hy_root, "ernest.yaml"))
+    # Patch approved + dry_run in copied yaml
+    hy_text = open(os.path.join(hy_root, "ernest.yaml"), "r").read()
+    hy_text = re.sub(r"^\s*dry_run:\s*\S+", "  dry_run: false", hy_text, count=1, flags=re.M)
+    hy_text = re.sub(r"^\s*approved:\s*\S+", "  approved: true", hy_text, count=1, flags=re.M)
+    open(os.path.join(hy_root, "ernest.yaml"), "w").write(hy_text)
+
+    marker = {
+        "run_id": "test-run",
+        "job_id": "ernest-hubspot-hygiene",
+        "mechanical_only": True,
+        "started_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+    open(os.path.join(hy_root, "logs/hygiene-active-run.json"), "w").write(json.dumps(marker))
+
+    _hy_saved = {
+        "ERNEST_ROOT": os.environ.get("ERNEST_ROOT"),
+        "ERNEST_CRON_JOB": os.environ.get("ERNEST_CRON_JOB"),
+    }
+    try:
+        os.environ["ERNEST_ROOT"] = hy_root
+        os.environ["ERNEST_CRON_JOB"] = "ernest-hubspot-hygiene"
+        enf._hygiene_policy_cache = None
+
+        mech_ok = {
+            "tool_slug": "HUBSPOT_UPDATE_CONTACT",
+            "properties": {"company": "Acme Corp", "firstname": "Jane"},
+        }
+        check("ALLOW mechanical HUBSPOT_UPDATE_CONTACT when armed",
+              enf._hygiene_may_auto_apply("COMPOSIO_EXECUTE_TOOL", mech_ok))
+
+        os.environ["ERNEST_CRON_JOB"] = "ernest-ambient-watch"
+        enf._hygiene_policy_cache = None
+        check("BLOCK mechanical update from wrong cron job",
+              not enf._hygiene_may_auto_apply("COMPOSIO_EXECUTE_TOOL", mech_ok))
+
+        os.environ["ERNEST_CRON_JOB"] = "ernest-hubspot-hygiene"
+        hy_text2 = open(os.path.join(hy_root, "ernest.yaml"), "r").read()
+        hy_text2 = re.sub(r"^\s*dry_run:\s*\S+", "  dry_run: true", hy_text2, count=1, flags=re.M)
+        open(os.path.join(hy_root, "ernest.yaml"), "w").write(hy_text2)
+        enf._hygiene_policy_cache = None
+        check("BLOCK when dry_run true",
+              not enf._hygiene_may_auto_apply("COMPOSIO_EXECUTE_TOOL", mech_ok))
+
+        hy_text3 = open(os.path.join(hy_root, "ernest.yaml"), "r").read()
+        hy_text3 = re.sub(r"^\s*dry_run:\s*\S+", "  dry_run: false", hy_text3, count=1, flags=re.M)
+        open(os.path.join(hy_root, "ernest.yaml"), "w").write(hy_text3)
+        enf._hygiene_policy_cache = None
+        bad_field = {
+            "tool_slug": "HUBSPOT_UPDATE_CONTACT",
+            "properties": {"dealstage": "closedwon"},
+        }
+        check("BLOCK non-mechanical field dealstage",
+              not enf._hygiene_may_auto_apply("COMPOSIO_EXECUTE_TOOL", bad_field))
+
+        create_args = {"tool_slug": "HUBSPOT_CREATE_CONTACT", "properties": {"email": "a@b.co"}}
+        check("BLOCK HUBSPOT_CREATE even when armed",
+              blocked("COMPOSIO_EXECUTE_TOOL", create_args))
+    finally:
+        for k, v in _hy_saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+        enf._hygiene_policy_cache = None
+finally:
+    shutil.rmtree(_hy_tmp, ignore_errors=True)
+
 print()
-total = len(MUST_BLOCK) + len(MUST_ALLOW) + len(SCOPE_BLOCK) + len(SCOPE_ALLOW) + 2 + 2
+total = (
+    len(MUST_BLOCK) + len(MUST_ALLOW) + len(SCOPE_BLOCK) + len(SCOPE_ALLOW) + 2 + 2 + 5
+)
 if failures:
     print(f"FAILED {len(failures)}/{total}:")
     for f in failures:

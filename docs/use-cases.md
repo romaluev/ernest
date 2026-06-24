@@ -2,27 +2,25 @@
 
 Ernest's capability is its **installed skill library**. Growing Ernest means installing or authoring skills — never hand-coding features. `ernest-library-index` is the map; `ernest-use-case-author` governs growth.
 
-## Bundled playbooks (work out of the box)
+## Bundled playbooks (watch + draft)
 
-Ernest ships with seven parametrized, draft-first playbooks in `skills/playbooks/`.
-They cover the recurring email/CRM/Slack patterns. You don't install or configure
-them — ask in plain language and Ernest fills the parameters.
+Eight playbooks in `skills/playbooks/`. Each has a **watch half** (cron reminds) and
+a **draft half** (on your ask or **`draft these`** on a card). `contact-sourcing` is draft-only.
 
-| Ask Ernest | Playbook | What it does |
-|---|---|---|
-| "Add Priya to all my partnership threads" | `loop-in-teammate` | Finds the threads, drafts the loop-in, you approve |
-| "Find every B2B sales candidate in my inbox and follow up" | `inbox-prospect-followup` | Builds a vetted list from real exchanges, drafts on-voice follow-ups |
-| "Acme — find where I dropped the follow-up" | `account-followup-recovery` | Scans mail + HubSpot for one account, recovers stalled threads/promises |
-| "Sync my Korea contacts with Alvin's HubSpot list" | `hubspot-list-reconcile` | Diffs inbox vs a HubSpot list/owner, drafts the CRM updates |
-| "Keep the press list in sync with this Google Sheet" | `sheet-contact-sync` | Reconciles a live Google Sheet with mail/HubSpot both ways |
-| "Source ex-Skolkovo founders in the US for partnerships" | `contact-sourcing` | Researches new contacts to a brief, drafts first-touch outreach |
-| "Turn our Slack into who-owns-what" | `slack-task-tracking` | Extracts commitments from Slack into a tracker, posts transparent status |
+| Pattern | Playbook | Watch reminds | Draft prepares |
+|---|---|---|---|
+| Loop teammate into segment threads | `loop-in-teammate` | Missing CC | Loop-in drafts |
+| Profile in inbox, no follow-up | `inbox-prospect-followup` | Stale matches | Follow-up drafts |
+| Dropped ball on account | `account-followup-recovery` | Stalled threads | Recovery drafts |
+| Inbox vs HubSpot list | `hubspot-list-reconcile` | Drift | CRM update batch |
+| Sheet vs mail/CRM | `sheet-contact-sync` | Row drift | Sheet/CRM batch |
+| New contacts to brief | `contact-sourcing` | — | First-touch drafts |
+| Slack commitments | `slack-task-tracking` | Stale tasks | Tracker + digest |
+| HubSpot cleanup | `hubspot-hygiene` | Monday cron | Preview / mechanical / propose |
 
-The names in these examples are **placeholders** — the playbooks are generic. Any
-CEO swaps in their own people, companies, lists, and channels. Everything stays
-draft-first: the gate blocks every send, CRM write, and sheet/Slack write until you
-approve. When a new pattern repeats often, ask Ernest to turn it into a playbook of
-its own (`ernest-use-case-author`).
+Standing watches: `memory/standing-concerns.md`. CEO sets by asking — no YAML editing.
+
+Draft-first: gate blocks sends and CRM/sheet writes until approval. **Exception:** mechanical HubSpot hygiene when `hygiene_policy.approved: true` ([operations.md](operations.md#hubspot-hygiene)).
 
 ## The library
 

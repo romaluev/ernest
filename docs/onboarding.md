@@ -1,76 +1,37 @@
 # Onboarding
 
-Onboarding is a chat, not a setup wizard. The installer already connected a model,
-so the first session works immediately. The goal: one approved action in about a
-minute. Everything else fills in as you go.
+Chat, not a wizard. Installer connects the model; first session targets one
+approved action in ~1 minute. Watch crons and standing concerns come right after.
 
-## The one terminal step
-
-After install, start onboarding once:
+## One terminal step
 
 ```bash
 ernest chat -s ernest-bootstrap
 ```
 
-This is the only time you need the terminal. From the first reply on, move to the
-desktop app or Slack/Telegram and stay there — see [daily-use.md](daily-use.md).
+Only terminal moment. After first reply → desktop or Slack ([daily-use.md](daily-use.md)).
 
-## The first minute
-
-Ernest opens with one question, not a form:
+## First minute
 
 > "I'm Ernest. What's the one thing you'd most like off your plate right now?"
 
-Then it takes the shortest path to a result:
+1. **Connect apps this task needs** — authorize link; not everything at once.
+2. **Draft-half once** — real workflow, your voice, you approve one action.
+3. **Profile note** — `Ernest/00-CEO-Profile.md` from what Ernest learned.
+4. **Standing concerns** — "What should I keep an eye on?" Ernest writes
+   `memory/standing-concerns.md` (e.g. missing teammate on B2B threads, dropped
+   follow-ups, list drift). Watch crons use this file.
+5. **Enable crons** (optional) — `ernest-daily-brief`, `ernest-ambient-watch`,
+   `ernest-hubspot-hygiene`. Paused until enabled; gateway required.
 
-1. **Connect only what this task needs.** Ernest maps your ask to a workflow and
-   connects the one or two apps it requires (usually mail). It hands you a
-   one-click authorize link; you click it. It does **not** connect everything up
-   front — HubSpot, Slack, and Calendar wait until a task needs them.
-2. **Run the task on real data.** Ernest runs the workflow against your real
-   threads, drafts in your voice, and shows you the result for approval. Onboarding
-   is done the moment one on-voice action passes the draft-first gate because you
-   approved it.
-3. **Write a short profile.** Ernest confirms your memory vault (defaults to
-   `~/ErnestVault`) and writes a profile note — company, voice, red lines — from
-   what it learned doing the task.
+Marker: `Ernest/.onboarded` after first approval.
 
-## What fills in afterward (never blocking)
+## After onboarding
 
-- **More apps** connect the next time a task needs one — ask for it.
-- **Your preferences** (who matters most, what needs approval, the one metric
-  Ernest optimizes for) are captured as real decisions come up, not in a
-  questionnaire.
-- **The seven workflows ship ready**, so most asks work on day one. Extra skills
-  install only when a need appears.
-- **Ambient automation turns on last.** The background jobs (morning brief,
-  dropped-ball scan) ship paused. Once a real action has shipped and the apps a
-  job needs are connected, Ernest offers to enable them. They run only while the
-  gateway is up. See [operations.md](operations.md#cron-automation).
+- **Watch:** crons remind (no drafts).
+- **Draft:** you ask or tap **`draft these`** on a card.
+- **Hygiene:** Monday HubSpot cleanup — preview until you approve policy.
 
-## Where Ernest is connected
+Re-run bootstrap anytime to update profile or watches.
 
-Apps connect through Composio — one account at
-[dashboard.composio.dev](https://dashboard.composio.dev) covers HubSpot, Outlook,
-Calendar, Slack, Gmail, and 500+ others. If a Composio key was set at install,
-Ernest hands you authorize links. If not, it walks you through getting a key in
-chat. You never edit files. Details: [configure.md](configure.md#2-composio-real-app-connectors).
-
-## What gets written
-
-| Location | Content |
-|---|---|
-| Obsidian `Ernest/00-CEO-Profile.md` | Company, voice fingerprint, red lines |
-| `Ernest/.onboarded` (marker) | Set after the first approved action so later sessions skip straight to work |
-| Hermes profile memory | Working summary, deepened over time by the curator |
-
-Ernest captures your voice from your real sent mail; it never invents example
-emails.
-
-## Re-running
-
-Re-run `ernest chat -s ernest-bootstrap` any time to update your profile (new
-focus, changed approval rules). It updates the notes rather than duplicating them.
-
-Next: [daily-use.md](daily-use.md) for how every day actually works, or
-[use-cases.md](use-cases.md) to grow what Ernest can do.
+Next: [daily-use.md](daily-use.md) · [use-cases.md](use-cases.md)

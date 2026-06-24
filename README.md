@@ -32,10 +32,11 @@ Install and onboarding are a one-time terminal step. After that you work in one 
   toggle automations.
 - **Slack or Telegram** — message Ernest like a teammate; approvals happen inline.
 
-The CLI (`ernest chat`) is for install/onboarding and power users only. The daily
-loop is the same everywhere: **you ask → Ernest drafts → you approve → Ernest
-sends**. Nothing leaves your accounts until you approve — the draft-first gate,
-enforced in code.
+The CLI (`ernest chat`) is for install/onboarding and power users only.
+
+**Watch-first:** crons remind you what slipped (no drafts). You ask or tap **draft
+these** on a card when you want email/CRM content prepared → approve → send. One
+exception: mechanical HubSpot hygiene after you opt in ([operations.md](docs/operations.md)).
 
 Start here: **[docs/daily-use.md](docs/daily-use.md)**.
 
@@ -62,23 +63,20 @@ setup.ps1          one-line installer — Windows (PowerShell)
 SOUL.md            identity + hard rules (draft-first)
 config.yaml        Composio MCP, Obsidian memory, curator, gate, delegation
 distribution.yaml  Hermes manifest (requires Composio + Obsidian)
-ernest.yaml        scope, approval levels, north-star
-cron/jobs.json     daily brief · dropped-ball scan · weekly self-improve
-plugins/           ernest-enforcement (the draft-only gate)
-skills/_meta/      ernest-bootstrap · library-index · use-case-author
-skills/playbooks/  7 ready-to-use, parametrized CEO workflows (email/CRM/Slack)
-scripts/           install-skills.sh · verify-ernest.sh
-memory/            onboarding templates (filled from real data)
+ernest.yaml        scope, watchers, hygiene_policy, approval levels
+cron/jobs.json     daily brief · ambient watch · hubspot hygiene · self-improve
+plugins/           ernest-enforcement (draft-first gate + hygiene exception)
+skills/_meta/      bootstrap · watch · library-index · use-case-author
+skills/playbooks/  8 playbooks (watch + draft halves; hubspot-hygiene cron)
+memory/            standing-concerns template + onboarding seeds
 ```
 
 ## What it does out of the box
 
-Seven bundled, draft-first **playbooks** cover recurring CEO patterns: loop a
-teammate into a class of threads, find and follow up with people in your inbox,
-recover dropped follow-ups for an account, reconcile mail with a HubSpot list, sync
-a list with a Google Sheet, source new contacts to a brief, and turn Slack into
-transparent task tracking. They are generic templates — swap in your own people,
-companies, and lists. See [docs/use-cases.md](docs/use-cases.md).
+Eight **playbooks** with watch halves (cron reminds) and draft halves (on your ask
+or **draft these** on a card): loop-in-teammate, follow-up recovery, list
+reconcile, sheet sync, sourcing, Slack tasks, HubSpot hygiene. Standing watches in
+`memory/standing-concerns.md`. See [docs/use-cases.md](docs/use-cases.md).
 
 ## Verify
 
