@@ -2,6 +2,28 @@
 
 Ernest's capability is its **installed skill library**. Growing Ernest means installing or authoring skills — never hand-coding features. `ernest-library-index` is the map; `ernest-use-case-author` governs growth.
 
+## Bundled playbooks (work out of the box)
+
+Ernest ships with seven parametrized, draft-first playbooks in `skills/playbooks/`.
+They cover the recurring email/CRM/Slack patterns most CEOs hit. You don't install
+or configure them — just ask in plain language and Ernest fills the parameters.
+
+| Ask Ernest | Playbook | What it does |
+|---|---|---|
+| "Add Priya to all my partnership threads" | `loop-in-teammate` | Finds the threads, drafts the loop-in, you approve |
+| "Find every B2B sales candidate in my inbox and follow up" | `inbox-prospect-followup` | Builds a vetted list from real exchanges, drafts on-voice follow-ups |
+| "Acme — find where I dropped the follow-up" | `account-followup-recovery` | Scans mail + HubSpot for one account, recovers stalled threads/promises |
+| "Sync my Korea contacts with Alvin's HubSpot list" | `hubspot-list-reconcile` | Diffs inbox vs a HubSpot list/owner, drafts the CRM updates |
+| "Keep the press list in sync with this Google Sheet" | `sheet-contact-sync` | Reconciles a live Google Sheet with mail/HubSpot both ways |
+| "Source ex-Skolkovo founders in the US for partnerships" | `contact-sourcing` | Researches new contacts to a brief, drafts first-touch outreach |
+| "Turn our Slack into who-owns-what" | `slack-task-tracking` | Extracts commitments from Slack into a tracker, posts transparent status |
+
+The names in these examples are **placeholders** — the playbooks are generic. Any
+CEO swaps in their own people, companies, lists, and channels. Everything stays
+draft-first: the gate blocks every send, CRM write, and sheet/Slack write until you
+approve. When a new pattern repeats often, ask Ernest to turn it into a playbook of
+its own (`ernest-use-case-author`).
+
 ## The library
 
 | Need | Skill | Source |

@@ -2,19 +2,39 @@
 
 ## The one command
 
+**macOS · Linux · WSL · Termux**
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/romaluev/ernest/main/setup.sh | bash
+```
+
+**Windows (PowerShell)**
+
+```powershell
+irm https://raw.githubusercontent.com/romaluev/ernest/main/setup.ps1 | iex
 ```
 
 This is everything. It:
 
 1. Installs **Hermes** if it isn't already there (only `git` is required up front; Hermes pulls its own Python/Node).
 2. Installs the **Ernest** profile from this repo and creates the `ernest` command.
-3. Asks (optionally) for a **Composio key** and an **Obsidian vault folder** — press Enter to skip and do it later in chat.
+3. Creates a memory vault (`~/ErnestVault` by default) — **no prompts**.
 4. **Connects a model** by browser login — pick **OpenAI Codex**, **Anthropic**, or **Nous Portal**. No API keys to paste.
-5. Drops you into **onboarding chat**, which handles app authorization, memory, voice, and the skill library.
+5. Drops you into **onboarding chat**, which connects apps as the first task needs them and gets you to a real result in about a minute.
 
 The only steps you cannot skip: logging into a model (Ernest can't think without one) and clicking *authorize* on your own apps when Ernest hands you a connect link. Nobody can OAuth into your HubSpot/Outlook for you.
+
+### Zero-touch / fleet provisioning
+
+The installer never blocks on a prompt. To pre-seed it for unattended/MDM rollout:
+
+```bash
+ERNEST_COMPOSIO_API_KEY=ck_xxx ERNEST_VAULT="$HOME/Vault" \
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/romaluev/ernest/main/setup.sh)"
+```
+
+In a headless environment (no terminal), it installs cleanly and prints the two
+commands to finish (`ernest model`, `ernest chat -s ernest-bootstrap`).
 
 ## What you'll want ready
 

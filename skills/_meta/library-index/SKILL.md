@@ -14,6 +14,26 @@ metadata:
 
 Ernest's capability comes from **installed, vetted skills**, not hand-written ones. Before designing anything, find it here. Install via `scripts/install-skills.sh` or the commands below.
 
+## Playbooks (ship ready-to-use, parametrized)
+
+These are bundled in `skills/playbooks/` — no install needed. Each is a draft-first,
+parametrized workflow over the connected tools. Match the CEO's ask to a playbook,
+fill its parameters from the request, and run it. They are templates, not hardcoded
+to any one person or company — any CEO scales by reusing them with new parameters.
+
+| CEO says (example) | Playbook |
+|---|---|
+| "Add <person> to all <segment> threads" | `loop-in-teammate` |
+| "Find all <profile> in my mail and follow up" | `inbox-prospect-followup` |
+| "<Company> follow-up — find where I went dark" | `account-followup-recovery` |
+| "Sync my <segment> email with <owner>'s HubSpot list" | `hubspot-list-reconcile` |
+| "Keep <list> in sync with this Google Sheet <url>" | `sheet-contact-sync` |
+| "Source ex-<org> people in <place> for partnership/hire" | `contact-sourcing` |
+| "Make transparent task tracking from Slack" | `slack-task-tracking` |
+
+If a request almost fits a playbook, run it with adjusted parameters. If a new
+pattern repeats, promote it via `ernest-use-case-author` (don't improvise raw calls).
+
 ## Operating use cases
 
 | Need | Skill | Install |

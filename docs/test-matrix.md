@@ -162,12 +162,35 @@ For mutating scenarios, "draft/blocked" = the **catastrophic auto-action is prev
 
 ---
 
+## B2. The CEO's named asks → bundled playbook
+
+These are the exact examples from the brief. The names/companies are placeholders;
+each is handled by a generic, parametrized playbook in `skills/playbooks/` — so any
+CEO scales by reusing them. The compose/read half + live result are GUARDED/NEEDS-LIVE;
+every send/CRM/sheet/Slack write is gate-VERIFIED (blocked until approval).
+
+| # | CEO ask | Playbook | Status |
+|---|---------|----------|--------|
+| 56 | "Add Manoj to all B2B threads" (my intros slip; he doesn't) | `loop-in-teammate` | playbook present; gate VERIFIED, run NEEDS-LIVE |
+| 57 | "Alua/Limon reach-out — find all real B2B sales/marketing candidates in mail and follow up" | `inbox-prospect-followup` | present; gate VERIFIED, run NEEDS-LIVE |
+| 58 | "Nubank follow-up — find every important contact where I dropped the ball" | `account-followup-recovery` | present; gate VERIFIED, run NEEDS-LIVE |
+| 59 | "South Korea — sync my email with Alvin's list in HubSpot" | `hubspot-list-reconcile` | present; gate VERIFIED, run NEEDS-LIVE |
+| 60 | "Press list incl TechCrunch (Rebecca) — sync with this Google Sheet" | `sheet-contact-sync` | present; gate VERIFIED, run NEEDS-LIVE |
+| 61 | "Source ex-Skolkovo people in the USA (e.g. these LinkedIn profiles) for partnership/hire" | `contact-sourcing` | present; gate VERIFIED, run NEEDS-LIVE |
+| 62 | "Globally in Slack: transparent task tracking for the company" | `slack-task-tracking` | present; gate VERIFIED, run NEEDS-LIVE |
+
+All seven ship out of the box (no install) and are draft-first. `verify-ernest.sh`
+confirms they load (10 skills total: 3 meta + 7 playbooks).
+
+---
+
 ## C. Honest verdict
 
 **Proven here (no live accounts needed):**
 - The safety gate now loads and blocks every catastrophic auto-action class (sends, CRM/calendar mutations, remote-exec, path escapes, secret reads) while allowing reads, drafts, and onboarding — 43/43 assertions.
-- The installer survives the skip path, no-tty environments, and re-runs.
-- The distribution installs cleanly, loads its skills, parses config/MCP, and ships cron paused.
+- The installer (`setup.sh`) is non-interactive, survives no-tty environments and re-runs, and is mirrored for Windows (`setup.ps1`).
+- The distribution installs cleanly, loads its skills (3 meta + 7 playbooks), parses config/MCP, and ships cron paused.
+- All seven of the CEO's named patterns map to a bundled, parametrized, draft-first playbook that loads out of the box.
 
 **Cannot be "100%" until a one-time live dry-run with the CEO's accounts:**
 - A real model connected (`ernest model`), Composio apps authorized, and an Obsidian vault — then one full onboarding pass (read inbox → draft on-voice reply → approve → enable cron).
