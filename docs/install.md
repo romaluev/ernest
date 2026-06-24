@@ -14,15 +14,15 @@ curl -fsSL https://raw.githubusercontent.com/romaluev/ernest/main/setup.sh | bas
 irm https://raw.githubusercontent.com/romaluev/ernest/main/setup.ps1 | iex
 ```
 
-This is everything. It:
+It does five things:
 
-1. Installs **Hermes** if it isn't already there (only `git` is required up front; Hermes pulls its own Python/Node).
+1. Installs **Hermes** if it isn't already present (only `git` is required up front; Hermes pulls its own Python/Node).
 2. Installs the **Ernest** profile from this repo and creates the `ernest` command.
-3. Creates a memory vault (`~/ErnestVault` by default) — **no prompts**.
+3. Creates a memory vault (`~/ErnestVault` by default), no prompts.
 4. **Connects a model** by browser login — pick **OpenAI Codex**, **Anthropic**, or **Nous Portal**. No API keys to paste.
-5. Drops you into **onboarding chat**, which connects apps as the first task needs them and gets you to a real result in about a minute.
+5. Opens **onboarding chat**, which connects apps as the first task needs them and reaches a real result in about a minute.
 
-The only steps you cannot skip: logging into a model (Ernest can't think without one) and clicking *authorize* on your own apps when Ernest hands you a connect link. Nobody can OAuth into your HubSpot/Outlook for you.
+Two steps require you: logging into a model (Ernest needs one to run) and clicking *authorize* when Ernest hands you an app connect link. Nobody can OAuth into your HubSpot/Outlook for you.
 
 ### Zero-touch / fleet provisioning
 
@@ -39,7 +39,7 @@ commands to finish (`ernest model`, `ernest chat -s ernest-bootstrap`).
 ## What you'll want ready
 
 - A **model**: an OpenAI/ChatGPT, Anthropic, or Nous Portal login (OAuth — no key needed), *or* an OpenRouter/Anthropic/OpenAI API key if you prefer.
-- A **Composio account** (free tier) for app connections — [dashboard.composio.dev](https://dashboard.composio.dev). Optional at install time; onboarding can walk you through it.
+- A **Composio account** (free tier) for app connections — [dashboard.composio.dev](https://dashboard.composio.dev). Optional at install time; onboarding collects it.
 - **Obsidian** (optional) — the installer creates a `~/ErnestVault` folder if you don't point it at an existing vault.
 
 ## Re-running
@@ -66,4 +66,4 @@ hermes -p ernest skills list         # ernest-bootstrap, library-index, use-case
 hermes -p ernest cron list           # 3 jobs, disabled until enabled
 ```
 
-Next: [configure.md](configure.md) for the details, or just start chatting — onboarding covers it.
+Next: [configure.md](configure.md) for details, or start onboarding — it covers the rest.

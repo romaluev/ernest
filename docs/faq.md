@@ -32,11 +32,10 @@ and drafts happen freely; anything that touches the outside world waits.
 
 ### What does it need from me to start?
 
-Three things, and only the first two are unavoidable: a model login (so it can
-think — handled by the installer), and a click on the authorize link for the first
-app a task needs (nobody can log into your accounts for you). The third is just
-telling it what you want off your plate. That's onboarding —
-see [onboarding.md](onboarding.md).
+Three things, and only the first two are unavoidable: a model login (so it can run
+— handled by the installer), and a click on the authorize link for the first app a
+task needs (nobody can log into your accounts for you). The third is telling it
+what you want off your plate. That's onboarding — see [onboarding.md](onboarding.md).
 
 ### What happens when I'm away?
 
@@ -63,9 +62,9 @@ your live accounts — fix it at the source (mail/HubSpot) and re-ask.
 
 ### How do I add a new kind of task or use-case?
 
-Just ask in plain language. Ernest checks for an installed skill that fits and uses
-it; if none does, it says so. When the same request recurs, ask it to make a
-standing workflow and it proposes one for you to approve. Full mechanics:
+Ask in plain language. Ernest checks for an installed skill that fits and uses it;
+if none does, it says so. When the same request recurs, ask it to make a standing
+workflow and it proposes one for you to approve. Full mechanics:
 [use-cases.md](use-cases.md).
 
 ### How do I connect another app?
@@ -95,10 +94,9 @@ See [daily-use.md](daily-use.md).
 
 ### Is it safe to use on my real accounts?
 
-That's what it's built for, and the draft-first gate is exactly why it's safe: it
-can read and prepare freely, but it cannot send, write, post, or delete without your
-explicit approval. Start with one app and one task, approve a few drafts to see how
-it behaves, and connect more as your trust grows. Two honest caveats: Ernest is only
-as accurate as the accounts it reads, and the desktop app (Hermes One) is a separate
-third-party tool whose exact UI is its own — but the safety rule holds across every
-surface.
+Yes, and the draft-first gate is the reason: it can read and prepare freely, but it
+cannot send, write, post, or delete without your explicit approval. Start with one
+app and one task, approve a few drafts to see how it behaves, then connect more. Two
+caveats remain true: Ernest is only as accurate as the accounts it reads, and the
+desktop app (Hermes One) is a separate third-party tool whose exact UI is its own.
+The safety rule holds across every surface.

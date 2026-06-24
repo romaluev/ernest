@@ -5,8 +5,8 @@ Ernest's capability is its **installed skill library**. Growing Ernest means ins
 ## Bundled playbooks (work out of the box)
 
 Ernest ships with seven parametrized, draft-first playbooks in `skills/playbooks/`.
-They cover the recurring email/CRM/Slack patterns most CEOs hit. You don't install
-or configure them — just ask in plain language and Ernest fills the parameters.
+They cover the recurring email/CRM/Slack patterns. You don't install or configure
+them — ask in plain language and Ernest fills the parameters.
 
 | Ask Ernest | Playbook | What it does |
 |---|---|---|

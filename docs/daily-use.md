@@ -1,23 +1,22 @@
 # Daily use
 
-Install is a one-time terminal moment. After that you never touch the terminal.
-You work with Ernest in two places:
+Install is a one-time terminal step. After that you work with Ernest in two places:
 
 - **Hermes One (desktop app)** — your main surface. Chat, read drafts, approve or
-  reject them, look at memory, turn automations on or off. Same as messaging a
-  capable chief of staff who can see your mail, CRM, calendar, and Slack.
+  reject them, view memory, turn automations on or off. It works like messaging a
+  chief of staff who can see your mail, CRM, calendar, and Slack.
 - **Slack or Telegram** — Ernest as an always-on teammate. Message it like a
   person; it replies, drafts, and asks for approval inline. This is also where
-  "who-owns-what" task tracking lives.
+  who-owns-what task tracking lives.
 
-The `ernest chat` terminal command still works and is fine for power users, but
-nothing about daily work requires it.
+The `ernest chat` terminal command still works for power users, but daily work
+does not require it.
 
 > Hermes One is a separate desktop app (see [configure.md](configure.md#4-desktop-ui-ceo-facing)).
-> The exact buttons are its UI, not Ernest's. What never changes is the rule
-> below: nothing leaves your accounts until you say yes.
+> The exact buttons are its UI, not Ernest's. The rule below holds on every
+> surface: nothing leaves your accounts until you approve.
 
-## The only loop you need to learn
+## The loop
 
 Everything Ernest does follows one shape:
 
@@ -25,11 +24,10 @@ Everything Ernest does follows one shape:
 you ask  →  Ernest drafts  →  you approve  →  Ernest sends
 ```
 
-You can ask in plain language. Ernest reads your real mail, CRM, sheets, and
-Slack, then comes back with a **draft**, never a sent action. Sending an email,
-writing to HubSpot, editing a Google Sheet, or posting in Slack are all blocked
-until you approve. This is the draft-first gate and it cannot be skipped by
-accident — see [architecture.md](architecture.md#the-gate).
+Ask in plain language. Ernest reads your real mail, CRM, sheets, and Slack, then
+returns a **draft**, never a sent action. Sending an email, writing to HubSpot,
+editing a Google Sheet, and posting in Slack are blocked until you approve. This is
+the draft-first gate, enforced in code — see [architecture.md](architecture.md#the-gate).
 
 **What approval looks like**
 
@@ -40,10 +38,10 @@ accident — see [architecture.md](architecture.md#the-gate).
   to approve, reject, or tell it what to change ("make it warmer", "drop the
   last line"). It re-drafts and waits again.
 
-You are always approving a concrete thing you can read, not a vague intent. If
-you reject or edit, Ernest learns the correction and applies it next time.
+You always approve a concrete thing you can read, not a vague intent. If you
+reject or edit, Ernest records the correction and applies it next time.
 
-## Ambient: things that show up on their own
+## Ambient jobs
 
 Three background jobs ship **paused**. Once your apps are connected and you've
 approved a few actions, you (or whoever set Ernest up) can turn them on. After
@@ -60,9 +58,9 @@ enable: [operations.md](operations.md#cron-automation).)
 
 ## The seven things you can ask for today
 
-These ship ready. You don't set them up — just say it in plain language and
-Ernest fills in the details, asking only what it can't infer. The names below
-are **examples**; swap in your own people, companies, lists, and channels.
+These ship ready; you don't set them up. Say it in plain language and Ernest fills
+in the details, asking only what it can't infer. The names below are **examples**;
+swap in your own people, companies, lists, and channels.
 
 | Just say this | What Ernest does |
 |---|---|
@@ -79,12 +77,12 @@ before it happens.
 
 ## Asking for something new
 
-If your ask doesn't match the seven above, just say it anyway. Ernest looks for an
-installed skill that fits; if one exists it uses it, if not it tells you plainly
-rather than guessing. When the same kind of request keeps coming up, ask Ernest to
-make it a reusable workflow ("we do this every week — make it a standing thing")
-and it proposes one for you to approve. Connecting another app is the same: ask
-("connect my calendar"), Ernest hands you a one-click authorize link, you click it.
+If your ask doesn't match the seven above, say it anyway. Ernest looks for an
+installed skill that fits; if one exists it uses it, if not it says so rather than
+guessing. When the same request keeps recurring, ask Ernest to make it a reusable
+workflow ("we do this every week — make it a standing thing") and it proposes one
+for you to approve. Connecting another app works the same way: ask ("connect my
+calendar"), Ernest hands you a one-click authorize link, you click it.
 
 See [use-cases.md](use-cases.md) for how the library grows.
 
@@ -108,5 +106,5 @@ See [use-cases.md](use-cases.md) for how the library grows.
 | Connect another app | Ask Ernest; click the authorize link it returns |
 | Add a new kind of task | Ask in plain language; promote repeats to a workflow |
 
-Stuck? [troubleshooting.md](troubleshooting.md). New to Ernest? Start with
-[onboarding.md](onboarding.md).
+See [troubleshooting.md](troubleshooting.md) for issues, or
+[onboarding.md](onboarding.md) for the first-run flow.

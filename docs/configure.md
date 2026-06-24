@@ -5,12 +5,11 @@ All configuration is native Hermes. Ernest adds no custom config system.
 ## 1. Model
 
 ```bash
-ernest setup            # interactive: provider, model, gateway
-# or section-only:
-ernest setup model
+ernest model            # connect a model (OAuth or API key)
+ernest setup            # full interactive wizard: provider, model, gateway
 ```
 
-`config.yaml` defaults to `anthropic/claude-sonnet-4` with `provider: auto`. Override in setup or by editing `~/.hermes/profiles/ernest/config.yaml`.
+`config.yaml` defaults to `anthropic/claude-sonnet-4` with `provider: auto`. Override with `ernest model` or by editing `~/.hermes/profiles/ernest/config.yaml`.
 
 ## 2. Composio (real app connectors)
 

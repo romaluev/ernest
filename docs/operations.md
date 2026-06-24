@@ -24,7 +24,7 @@ hermes -p ernest gateway run     # foreground (WSL/Docker)
 hermes -p ernest gateway start   # background service (systemd/launchd)
 ```
 
-All ambient jobs are draft-only and reply `[SILENT]` when there's nothing to report, so they don't pay tokens or spam on quiet days.
+All three jobs are draft-only. The daily brief and dropped-ball scan reply `[SILENT]` when there's nothing to report, so they don't spend tokens or post on quiet days.
 
 ## Approvals
 
