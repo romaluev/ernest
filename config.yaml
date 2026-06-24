@@ -1,0 +1,76 @@
+model:
+  provider: auto
+  default: anthropic/claude-sonnet-4
+
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+  memory_char_limit: 2200
+  user_char_limit: 1375
+  nudge_interval: 6
+
+skills:
+  creation_nudge_interval: 6
+  config:
+    ernest:
+      connector_policy: draft_only
+      source_of_truth: hubspot
+      email_provider: outlook
+
+curator:
+  enabled: true
+  interval_hours: 24
+  min_idle_hours: 1
+  stale_after_days: 21
+  archive_after_days: 60
+
+approvals:
+  mode: manual
+  timeout: 60
+  cron_mode: deny
+
+delegation:
+  max_iterations: 100
+  child_timeout_seconds: 1200
+
+plugins:
+  enabled:
+    - ernest-enforcement
+
+mcp_servers:
+  # One connector for HubSpot, Outlook, Outlook Calendar, Slack, Gmail, and 500+
+  # apps. Set COMPOSIO_API_KEY in .env, connect accounts at app.composio.dev.
+  composio:
+    command: npx
+    args:
+      - "-y"
+      - "@composio/mcp@latest"
+      - start
+      - "--url"
+      - "https://mcp.composio.dev/composio/server"
+    env:
+      COMPOSIO_API_KEY: "${COMPOSIO_API_KEY}"
+    enabled: true
+    timeout: 120
+    tools:
+      resources: false
+      prompts: false
+
+  # Persistent second-brain memory. Point at a real Obsidian vault.
+  obsidian:
+    command: npx
+    args:
+      - "-y"
+      - "obsidian-mcp"
+      - "${OBSIDIAN_VAULT_PATH}"
+    env:
+      OBSIDIAN_VAULT_PATH: "${OBSIDIAN_VAULT_PATH}"
+    enabled: true
+    timeout: 60
+    tools:
+      resources: true
+      prompts: false
+
+agent:
+  max_turns: 40
+  reasoning_effort: medium
