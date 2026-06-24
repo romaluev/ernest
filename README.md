@@ -24,13 +24,32 @@ That's the whole setup — no prompts, no config files to edit, no skills to ins
 
 Fleet/zero-touch: pre-seed `ERNEST_COMPOSIO_API_KEY` and `ERNEST_VAULT` and the install asks nothing at all.
 
+## Where you work
+
+Install and onboarding are a one-time terminal moment. After that you never touch
+the terminal — you live in one of two places:
+
+- **Hermes One desktop app** — your main surface: chat, read drafts, approve or
+  reject, see memory, toggle automations.
+- **Slack or Telegram** — Ernest as an always-on teammate you just message;
+  approvals happen inline.
+
+The CLI (`ernest chat`) is only for install/onboarding and power users. Everything
+that matters day to day is the same simple loop: **you ask → Ernest drafts → you
+approve → Ernest sends**. Nothing leaves your accounts until you approve it —
+that's the draft-first gate, and it can't be skipped by accident.
+
+Start here: **[docs/daily-use.md](docs/daily-use.md)**.
+
 ## Documentation
 
 | Doc | What it covers |
 |---|---|
+| [docs/daily-use.md](docs/daily-use.md) | **Start here.** How a CEO works with Ernest every day in the desktop app and Slack |
+| [docs/onboarding.md](docs/onboarding.md) | The CEO first-run flow — one question, first real action in ~a minute |
+| [docs/faq.md](docs/faq.md) | What it can/can't do, the safety gate, privacy, which interface to use |
 | [docs/install.md](docs/install.md) | Prerequisites, install, required keys |
 | [docs/configure.md](docs/configure.md) | Hermes setup, Composio, Obsidian, model, desktop, gateway |
-| [docs/onboarding.md](docs/onboarding.md) | The CEO first-run flow (interview → connect → first real action) |
 | [docs/architecture.md](docs/architecture.md) | How it's built, the gate, memory, what's reused vs. custom |
 | [docs/use-cases.md](docs/use-cases.md) | The skill library and how to add / scale use-cases |
 | [docs/operations.md](docs/operations.md) | Cron, approvals, audit, update, backup |

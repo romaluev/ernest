@@ -59,4 +59,4 @@ To run Ernest as an always-on Slack teammate, configure the Slack gateway and st
 
 `plugins.enabled: [ernest-enforcement]` blocks external send/publish/write until the CEO approves. Approval levels live in `ernest.yaml` (`approval_defaults`). See [architecture.md](architecture.md#the-gate).
 
-Next: [onboarding.md](onboarding.md).
+Next: [onboarding.md](onboarding.md), then [daily-use.md](daily-use.md).
