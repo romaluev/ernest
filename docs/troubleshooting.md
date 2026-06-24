@@ -12,7 +12,7 @@
 
 ## Composio
 
-**`mcp test composio` fails / times out** — Check `COMPOSIO_API_KEY` is set in the profile `.env`, `npx` is installed, and you've authorized at least one toolkit at [app.composio.dev](https://app.composio.dev).
+**`mcp test composio` fails / times out** — Check `COMPOSIO_API_KEY` is set in the profile `.env`, `npx` is installed, and you've authorized at least one toolkit at [dashboard.composio.dev](https://dashboard.composio.dev).
 
 **Tool exists but returns auth error** — The toolkit isn't connected for your account. Authorize it in the Composio dashboard, then `hermes -p ernest mcp test composio`.
 
