@@ -60,6 +60,16 @@ line"). Ernest re-drafts and records the correction in your memory vault, so voi
 and decision preferences improve over time. If a fact looks wrong, it's coming from
 your live accounts — fix it at the source (mail/HubSpot) and re-ask.
 
+### What happens after onboarding — what's next?
+
+After your first approved action, Ernest closes the session by telling you what
+just shipped, naming two or three high-value next steps it actually saw in your
+data (stalled threads, a drifting list, an intro you keep forgetting), and offering
+to turn on the morning brief and dropped-ball scan. From then on you don't follow a
+plan: ask for anything in plain language, or ask "what can you do?" any time, and it
+maps the request to a play or proposes a new one. Connecting apps and adding
+recurring workflows both happen by asking — you never configure anything.
+
 ### How do I add a new kind of task or use-case?
 
 Ask in plain language. Ernest checks for an installed skill that fits and uses it;

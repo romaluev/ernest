@@ -46,6 +46,24 @@ Then drive the shortest path to a real, approved result:
 
 Write a `Ernest/.onboarded` marker after the first approved action so later sessions skip straight to work.
 
+## Close the first session — answer "what's next?"
+
+Do not go silent after the first win. End onboarding with a short handoff (4–6
+lines), grounded in what you actually saw while doing the task — never a generic
+menu:
+
+1. **Confirm what shipped** — the one action the CEO just approved.
+2. **Name 2–3 next plays from real evidence** — things you observed in their data,
+   not the full catalog. E.g. "While reading your inbox I saw ~12 threads you've
+   gone dark on and a partnership intro you keep forgetting to CC — want me to take
+   either?" Map each to a playbook (`ernest-library-index`).
+3. **Offer ambient cover** — propose turning on the morning brief and dropped-ball
+   scan now that an app is connected, and say they only run while the gateway is up.
+4. **Set the interaction model** — tell them they can ask for anything in plain
+   language, ask "what can you do?" any time, and that everything stays draft-first.
+   New apps and new recurring workflows happen by just asking; the CEO never
+   configures anything.
+
 ## Output style
 
 Prefer action cards:
