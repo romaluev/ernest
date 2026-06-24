@@ -24,14 +24,70 @@ _guard = None
 _scope_cache: Dict[str, Optional[dict]] = {}
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
-# Defense in depth: mock connectors omit send tools; this blocks live send paths.
+# Composio's Tool Router exposes GENERIC execution wrappers; the real action
+# (e.g. GMAIL_SEND_EMAIL) rides in the ARGS, not the tool name — so name-only
+# matching is bypassable. For these wrappers we inspect the action slug(s).
+_COMPOSIO_EXEC_TOOLS = {
+    "COMPOSIO_EXECUTE_TOOL",
+    "COMPOSIO_MULTI_EXECUTE_TOOL",
+    "COMPOSIO_EXECUTE_RECIPE",
+}
+# Remote code / proxy execution can hit arbitrary live APIs and escapes every
+# name/arg/filesystem guard. Draft-first => blocked until the CEO approves.
+_COMPOSIO_REMOTE_TOOLS = {
+    "COMPOSIO_REMOTE_BASH_TOOL",
+    "COMPOSIO_REMOTE_WORKBENCH",
+}
+
+# Defense in depth for any directly-named connector tools.
 _DRAFT_BLOCK_PATTERNS = [
-    re.compile(r"(?i)(outlook|email|mail|message).*(send|publish)"),
+    re.compile(r"(?i)(outlook|gmail|email|mail|message).*(send|publish|reply|forward)"),
     re.compile(r"(?i)^send_(email|message|mail)$"),
     re.compile(r"(?i)hubspot_(create|update|delete|merge|write)"),
     re.compile(r"(?i)slack_(post|send|publish)"),
     re.compile(r"(?i)enrichment_(write|push|export_live)"),
 ]
+
+# Action-slug verbs that mutate live systems. "DRAFT" always wins (drafting is
+# the whole point); pure reads (GET/LIST/SEARCH/…) never match and pass.
+_MUTATION_VERB_RE = re.compile(
+    r"(?i)(?:^|_)(SEND|REPLY|FORWARD|PUBLISH|POST|CREATE|UPDATE|DELETE|REMOVE|"
+    r"ARCHIVE|TRASH|MOVE|MERGE|ADD|SET|PATCH|PUT|INVITE|SCHEDULE|CANCEL|ACCEPT|"
+    r"DECLINE|ASSIGN|CLOSE|COMPLETE|MARK|UPSERT|IMPORT|UPLOAD|REPLACE|CLEAR|PAY|"
+    r"TRANSFER|SHARE)(?:_|$)"
+)
+_SLUG_SHAPE_RE = re.compile(r"^[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+$")
+_SLUG_KEYS = {
+    "tool_slug", "slug", "tool", "tool_name", "toolname", "action",
+    "action_name", "recipe_slug", "name", "function", "function_name",
+}
+
+
+def _slug_is_mutation(slug: str) -> bool:
+    s = (slug or "").upper()
+    if "DRAFT" in s:  # CREATE_*_DRAFT etc. — drafting is allowed
+        return False
+    return bool(_MUTATION_VERB_RE.search(s))
+
+
+def _collect_slugs(obj: Any, depth: int = 0) -> list:
+    """Recursively pull candidate Composio action slugs out of nested args."""
+    found: list = []
+    if depth > 6:
+        return found
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if isinstance(v, str) and (str(k).lower() in _SLUG_KEYS or _SLUG_SHAPE_RE.match(v)):
+                found.append(v)
+            else:
+                found.extend(_collect_slugs(v, depth + 1))
+    elif isinstance(obj, list):
+        for item in obj:
+            found.extend(_collect_slugs(item, depth + 1))
+    elif isinstance(obj, str):
+        if _SLUG_SHAPE_RE.match(obj):
+            found.append(obj)
+    return found
 
 
 def _profile_root() -> Optional[str]:
@@ -97,12 +153,39 @@ def _audit(ernest_root: str, profile: str, tool: str, decision: str, reason: str
         logger.debug("ernest-enforcement: audit write failed: %s", exc)
 
 
-def _draft_only_block(tool_name: str) -> Optional[Dict[str, str]]:
+def _draft_only_block(
+    tool_name: str,
+    args: Optional[Dict[str, Any]] = None,
+) -> Optional[Dict[str, str]]:
+    name = tool_name or ""
+    upper = name.upper()
+
+    # 1. Remote code / proxy execution — unconditionally draft-gated.
+    if upper in _COMPOSIO_REMOTE_TOOLS:
+        return {
+            "error": "draft_only",
+            "tool": name,
+            "reason": "Remote code/proxy execution can perform live actions; blocked until CEO approval.",
+        }
+
+    # 2. Composio execution wrappers — inspect the action slug(s) in the args.
+    if upper in _COMPOSIO_EXEC_TOOLS:
+        for slug in _collect_slugs(args or {}):
+            if _slug_is_mutation(slug):
+                return {
+                    "error": "draft_only",
+                    "tool": name,
+                    "action": slug,
+                    "reason": f"Live mutation '{slug}' blocked until CEO approval (draft-first).",
+                }
+        return None
+
+    # 3. Directly-named connector tools (defense in depth).
     for pattern in _DRAFT_BLOCK_PATTERNS:
-        if pattern.search(tool_name or ""):
+        if pattern.search(name):
             return {
                 "error": "draft_only",
-                "tool": tool_name,
+                "tool": name,
                 "reason": "External publish/send/write blocked until CEO approval.",
             }
     return None
@@ -153,7 +236,7 @@ def _draft_pre_tool_call(
     args: Optional[Dict[str, Any]] = None,
     **_kw: Any,
 ) -> Optional[Dict[str, str]]:
-    block = _draft_only_block(tool_name)
+    block = _draft_only_block(tool_name, args)
     if block is None:
         return None
     ernest_root = _ernest_root()

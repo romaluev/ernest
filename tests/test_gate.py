@@ -1,0 +1,127 @@
+#!/usr/bin/env python3
+"""Adversarial tests for the Ernest enforcement gate.
+
+Pure stdlib — runs under system python3, no Hermes import required. Loads the
+real plugin code and hammers the draft-only matcher and filesystem scope with
+hand-built attacks: "how would something trick Ernest into a live send or a
+read of secrets?"  Exit non-zero on any failure.
+"""
+from __future__ import annotations
+
+import importlib.util
+import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PLUGIN = os.path.join(ROOT, "plugins", "ernest-enforcement")
+
+
+def _load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+enf = _load("ernest_enf", os.path.join(PLUGIN, "__init__.py"))
+guard = _load("ernest_guard", os.path.join(PLUGIN, "guard.py"))
+
+failures: list[str] = []
+
+
+def check(label, cond):
+    mark = "ok  " if cond else "FAIL"
+    print(f"  [{mark}] {label}")
+    if not cond:
+        failures.append(label)
+
+
+def blocked(tool, args=None):
+    return enf._draft_only_block(tool, args or {}) is not None
+
+
+# ── Draft-only: live SENDS / mutations MUST be blocked ──────────────────────
+print("draft-only — must BLOCK (live actions):")
+MUST_BLOCK = [
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "GMAIL_SEND_EMAIL"}),               # the catastrophe
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "OUTLOOK_SEND_EMAIL"}),
+    ("COMPOSIO_EXECUTE_TOOL", {"slug": "HUBSPOT_DELETE_CONTACT"}),
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "HUBSPOT_CREATE_DEAL"}),
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "GOOGLECALENDAR_CREATE_EVENT"}),
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "SLACK_SEND_MESSAGE"}),
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "gmail_send_email"}),              # lowercase via key
+    ("COMPOSIO_EXECUTE_TOOL", {"arguments": {"tool_slug": "GMAIL_SEND_EMAIL"}}),  # nested
+    ("COMPOSIO_EXECUTE_TOOL", {"x": {"y": {"input": {"tool_slug": "GMAIL_SEND_EMAIL"}}}}),  # deep
+    ("COMPOSIO_MULTI_EXECUTE_TOOL", {"tools": [{"tool_slug": "GMAIL_FETCH_EMAILS"},
+                                               {"tool_slug": "SLACK_SEND_MESSAGE"}]}),  # one bad in batch
+    ("COMPOSIO_EXECUTE_TOOL", {"some_key": "GMAIL_SEND_EMAIL"}),               # bare slug by shape
+    ("COMPOSIO_REMOTE_BASH_TOOL", {"code": "curl -X POST https://api ..."}),  # proxy bypass
+    ("COMPOSIO_REMOTE_WORKBENCH", {"code": "requests.post(...)"}),
+    ("OUTLOOK_SEND_EMAIL", {}),                                               # direct name
+    ("send_email", {}),
+    ("hubspot_update_deal", {}),
+    ("slack_post_message", {}),
+    ("gmail_reply", {}),
+]
+for tool, args in MUST_BLOCK:
+    check(f"{tool} {args}", blocked(tool, args))
+
+# ── Draft-only: reads / drafts / onboarding MUST pass ───────────────────────
+print("draft-only — must ALLOW (reads, drafts, onboarding):")
+MUST_ALLOW = [
+    ("COMPOSIO_SEARCH_TOOLS", {"use_case": "read inbox"}),
+    ("COMPOSIO_MANAGE_CONNECTIONS", {"toolkits": ["hubspot", "outlook"]}),    # connect links in onboarding
+    ("COMPOSIO_INITIATE_CONNECTION", {"toolkit": "gmail"}),
+    ("COMPOSIO_WAIT_FOR_CONNECTION", {"toolkits": ["gmail"]}),
+    ("COMPOSIO_CREATE_PLAN", {"use_case": "draft a follow-up"}),              # planning, not a live action
+    ("COMPOSIO_GET_TOOL_SCHEMAS", {"slugs": ["GMAIL_SEND_EMAIL"]}),           # inspecting schema != sending
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "GMAIL_FETCH_EMAILS"}),
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "HUBSPOT_LIST_CONTACTS"}),
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "GMAIL_CREATE_EMAIL_DRAFT"}),     # drafting is the whole point
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "OUTLOOK_CREATE_DRAFT"}),
+    ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "GOOGLECALENDAR_GET_EVENTS"}),
+    ("read_file", {"path": "SOUL.md"}),                                       # governed by scope, not draft
+    ("write_file", {"path": "memory/x.md"}),
+]
+# NOTE: GET_TOOL_SCHEMAS args contain GMAIL_SEND_EMAIL as a *string to inspect*, not an
+# execution — and the wrapper isn't an exec tool, so args aren't scanned. Must still allow.
+for tool, args in MUST_ALLOW:
+    check(f"{tool} {args}", not blocked(tool, args))
+
+# ── Filesystem scope (uses the installed/real ernest.yaml at repo root) ─────
+print("filesystem scope — read **, write memory/** + vault, deny secrets:")
+scope = guard.load_scope("ernest", ROOT)
+check("ernest.yaml scope loaded", scope is not None)
+
+
+def scope_blocked(tool, path):
+    return guard.evaluate("ernest", tool, {"path": path}, ROOT, scope=scope) is not None
+
+
+SCOPE_BLOCK = [
+    ("write_file", "config.yaml"),          # distribution file — not writable
+    ("write_file", "SOUL.md"),
+    ("write_file", "../../etc/passwd"),     # path escape
+    ("write_file", "skills/_meta/x.md"),    # not in write globs
+    ("read_file", ".env"),                  # deny **/.env
+    ("read_file", "plugins/ernest-enforcement/.env"),
+]
+SCOPE_ALLOW = [
+    ("write_file", "memory/company-core.md"),
+    ("read_file", "SOUL.md"),
+    ("read_file", "config.yaml"),
+    ("read_file", "docs/install.md"),
+]
+for tool, path in SCOPE_BLOCK:
+    check(f"BLOCK {tool} {path}", scope_blocked(tool, path))
+for tool, path in SCOPE_ALLOW:
+    check(f"ALLOW {tool} {path}", not scope_blocked(tool, path))
+
+print()
+total = len(MUST_BLOCK) + len(MUST_ALLOW) + len(SCOPE_BLOCK) + len(SCOPE_ALLOW) + 2
+if failures:
+    print(f"FAILED {len(failures)}/{total}:")
+    for f in failures:
+        print(f"   - {f}")
+    sys.exit(1)
+print(f"PASS — {total} adversarial checks held")
