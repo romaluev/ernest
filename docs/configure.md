@@ -14,21 +14,21 @@ ernest setup model
 
 ## 2. Composio (real app connectors)
 
-The Composio MCP is pre-wired in `config.yaml`:
+The Composio MCP is pre-wired in `config.yaml` as a remote HTTP server (Composio's official Hermes integration):
 
 ```yaml
 mcp_servers:
   composio:
-    command: npx
-    args: ["-y", "@composio/mcp@latest", "start", "--url", "https://mcp.composio.dev/composio/server"]
-    env: { COMPOSIO_API_KEY: "${COMPOSIO_API_KEY}" }
+    url: "https://connect.composio.dev/mcp"
+    headers:
+      x-consumer-api-key: "${COMPOSIO_API_KEY}"
 ```
 
 Steps:
 
-1. Set `COMPOSIO_API_KEY` in the profile `.env`.
-2. At [app.composio.dev](https://app.composio.dev), authorize the toolkits the CEO needs: **HubSpot, Outlook, Outlook Calendar, Slack** (Gmail optional).
-3. Confirm tools resolve: `hermes -p ernest mcp test composio`.
+1. Get your Connect MCP URL + API key at [dashboard.composio.dev](https://dashboard.composio.dev); set `COMPOSIO_API_KEY` in the profile `.env`.
+2. Authorize the toolkits the CEO needs: **HubSpot, Outlook, Outlook Calendar, Slack** (Gmail optional). Either pre-connect in the dashboard, or let Ernest hand you a Connect Link on first use.
+3. Restart the agent, then confirm tools resolve: `hermes -p ernest mcp test composio`.
 
 One key covers 500+ apps. Add or remove toolkits in the Composio dashboard — no config change needed.
 

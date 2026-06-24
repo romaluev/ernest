@@ -39,19 +39,15 @@ plugins:
 
 mcp_servers:
   # One connector for HubSpot, Outlook, Outlook Calendar, Slack, Gmail, and 500+
-  # apps. Set COMPOSIO_API_KEY in .env, connect accounts at app.composio.dev.
+  # apps. Remote HTTP MCP per Composio's official Hermes integration.
+  # Set COMPOSIO_API_KEY in .env; connect/authorize apps at dashboard.composio.dev.
   composio:
-    command: npx
-    args:
-      - "-y"
-      - "@composio/mcp@latest"
-      - start
-      - "--url"
-      - "https://mcp.composio.dev/composio/server"
-    env:
-      COMPOSIO_API_KEY: "${COMPOSIO_API_KEY}"
+    url: "https://connect.composio.dev/mcp"
+    headers:
+      x-consumer-api-key: "${COMPOSIO_API_KEY}"
     enabled: true
-    timeout: 120
+    connect_timeout: 60
+    timeout: 180
     tools:
       resources: false
       prompts: false
