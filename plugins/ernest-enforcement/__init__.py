@@ -90,11 +90,44 @@ def _collect_slugs(obj: Any, depth: int = 0) -> list:
     return found
 
 
+def _has_scope(d: Optional[str]) -> bool:
+    """True if ``d`` is a profile root containing ernest.yaml (matches guard.load_scope)."""
+    if not d:
+        return False
+    return os.path.isfile(os.path.join(d, "ernest.yaml")) or os.path.isfile(
+        os.path.join(d, "profile", "ernest.yaml")
+    )
+
+
 def _profile_root() -> Optional[str]:
-    for key in ("HERMES_HOME", "ERNEST_ROOT"):
-        root = os.environ.get(key)
-        if root and os.path.isdir(root):
-            return os.path.realpath(root)
+    """Resolve the Ernest PROFILE directory (where ernest.yaml lives).
+
+    Must be the profile dir, not HERMES_HOME — guard.load_scope/to_ernest_relative
+    are rooted there. We derive it from this plugin's own path so scope enforcement
+    works even when no env vars are set (cron, gateway, multi-account).
+    """
+    # 1. Explicit override (tests / unusual installs) — only if it really holds scope.
+    env_root = os.environ.get("ERNEST_ROOT")
+    if _has_scope(env_root):
+        return os.path.realpath(env_root)  # type: ignore[arg-type]
+
+    # 2. Derive from <root>/plugins/ernest-enforcement/__init__.py — env-independent.
+    here_root = os.path.dirname(os.path.dirname(_HERE))
+    if _has_scope(here_root):
+        return os.path.realpath(here_root)
+
+    # 3. HERMES_HOME/profiles/<active profile>.
+    home = os.environ.get("HERMES_HOME")
+    if home:
+        cand = os.path.join(home, "profiles", _active_profile())
+        if _has_scope(cand):
+            return os.path.realpath(cand)
+
+    # 4. Last resort: an existing dir (legacy behavior; scope may be absent).
+    for key in ("ERNEST_ROOT", "HERMES_HOME"):
+        d = os.environ.get(key)
+        if d and os.path.isdir(d):
+            return os.path.realpath(d)
     return None
 
 

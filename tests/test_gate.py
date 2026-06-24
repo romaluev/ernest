@@ -117,8 +117,47 @@ for tool, path in SCOPE_BLOCK:
 for tool, path in SCOPE_ALLOW:
     check(f"ALLOW {tool} {path}", not scope_blocked(tool, path))
 
+# ── Runtime root resolution: scope must NOT silently no-op in the real install ─
+# Regression for the bug where _ernest_root() returned HERMES_HOME (~/.hermes)
+# instead of the profile dir (~/.hermes/profiles/ernest), so load_scope found
+# nothing and the whole filesystem gate went dark. Simulate the installed layout.
+print("runtime root resolution — scope stays armed under install/cron/gateway:")
+import shutil
+import tempfile
+
+_tmp = tempfile.mkdtemp(prefix="ernest_rt_")
+try:
+    hermes_home = os.path.join(_tmp, ".hermes")
+    prof_dir = os.path.join(hermes_home, "profiles", "ernest")
+    plug_dir = os.path.join(prof_dir, "plugins", "ernest-enforcement")
+    os.makedirs(plug_dir)
+    shutil.copy(os.path.join(PLUGIN, "ernest.yaml") if os.path.isfile(os.path.join(PLUGIN, "ernest.yaml")) else os.path.join(ROOT, "ernest.yaml"),
+                os.path.join(prof_dir, "ernest.yaml"))
+    shutil.copy(os.path.join(PLUGIN, "__init__.py"), os.path.join(plug_dir, "__init__.py"))
+    shutil.copy(os.path.join(PLUGIN, "guard.py"), os.path.join(plug_dir, "guard.py"))
+
+    _saved = {k: os.environ.get(k) for k in ("HERMES_HOME", "HERMES_PROFILE", "ERNEST_ROOT")}
+    try:
+        os.environ.pop("HERMES_PROFILE", None)   # cron/gateway: not set
+        os.environ.pop("ERNEST_ROOT", None)
+        os.environ["HERMES_HOME"] = hermes_home  # points at hermes home, NOT profile dir
+        rt = _load("ernest_enf_rt", os.path.join(plug_dir, "__init__.py"))
+        resolved = rt._ernest_root()
+        check("root resolves to the profile dir (not HERMES_HOME)",
+              resolved == os.path.realpath(prof_dir))
+        check("scope loads from resolved root",
+              guard.load_scope("ernest", resolved) is not None)
+    finally:
+        for k, v in _saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+finally:
+    shutil.rmtree(_tmp, ignore_errors=True)
+
 print()
-total = len(MUST_BLOCK) + len(MUST_ALLOW) + len(SCOPE_BLOCK) + len(SCOPE_ALLOW) + 2
+total = len(MUST_BLOCK) + len(MUST_ALLOW) + len(SCOPE_BLOCK) + len(SCOPE_ALLOW) + 2 + 2
 if failures:
     print(f"FAILED {len(failures)}/{total}:")
     for f in failures:
