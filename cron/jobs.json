@@ -1,0 +1,47 @@
+{
+  "jobs": [
+    {
+      "id": "ernest-daily-brief",
+      "name": "ernest-daily-brief",
+      "schedule": { "kind": "cron", "expr": "0 8 * * 1-5", "display": "weekdays at 08:00" },
+      "schedule_display": "weekdays at 08:00",
+      "skills": ["ernest-bootstrap", "ernest-library-index"],
+      "skill": "ernest-bootstrap",
+      "prompt": "Read the live inbox, calendar, and HubSpot pipeline via the connected tools. Write a short morning brief to the Obsidian vault under Ernest/00-Daily/. Surface only items needing the CEO today. Draft-only. If nothing needs attention, reply [SILENT].",
+      "deliver": "local",
+      "no_agent": false,
+      "enabled": true,
+      "state": "scheduled",
+      "repeat": { "times": null, "completed": 0 }
+    },
+    {
+      "id": "ernest-dropped-ball-scan",
+      "name": "ernest-dropped-ball-scan",
+      "schedule": { "kind": "cron", "expr": "0 11,16 * * 1-5", "display": "weekdays 11:00 and 16:00" },
+      "schedule_display": "weekdays 11:00 and 16:00",
+      "skills": ["ernest-bootstrap"],
+      "skill": "ernest-bootstrap",
+      "prompt": "Scan open Outlook threads and HubSpot deals for stalled follow-ups and unmet promises. Produce prioritized ownership cards. Draft replies but do not send. If nothing is stalled, reply [SILENT].",
+      "deliver": "local",
+      "no_agent": false,
+      "enabled": true,
+      "state": "scheduled",
+      "repeat": { "times": null, "completed": 0 }
+    },
+    {
+      "id": "ernest-self-improve",
+      "name": "ernest-self-improve",
+      "schedule": { "kind": "cron", "expr": "0 17 * * 5", "display": "Fridays at 17:00" },
+      "schedule_display": "Fridays at 17:00",
+      "skills": ["ernest-use-case-author"],
+      "skill": "ernest-use-case-author",
+      "prompt": "Review this week's sessions and corrections. Use the Hermes Dojo to rank weak skills, then propose at most one improvement (install a vetted skill, author one with skill-creator, or patch via self-evolution). Output a reviewable proposal with a rollback. Adopt nothing without CEO approval.",
+      "deliver": "local",
+      "no_agent": false,
+      "enabled": true,
+      "state": "scheduled",
+      "repeat": { "times": null, "completed": 0 }
+    }
+  ],
+  "updated_at": "2026-06-24T00:00:00Z"
+}
