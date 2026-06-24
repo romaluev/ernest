@@ -1,0 +1,30 @@
+name: ernest
+version: 2.0.0
+description: CEO operating clone on Hermes — connects real apps via Composio, drafts in the CEO's voice, self-improves. Reuse-first.
+hermes_requires: ">=0.12.0"
+author: Notiky
+license: MIT
+
+env_requires:
+  - name: OPENROUTER_API_KEY
+    description: OpenRouter API key (or set ANTHROPIC_API_KEY / OPENAI_API_KEY instead)
+    required: false
+  - name: ANTHROPIC_API_KEY
+    description: Anthropic API key
+    required: false
+  - name: COMPOSIO_API_KEY
+    description: Composio key — connects HubSpot, Outlook, Slack, Calendar, Gmail (app.composio.dev)
+    required: true
+  - name: OBSIDIAN_VAULT_PATH
+    description: Absolute path to the CEO's Obsidian vault (Ernest's long-term memory)
+    required: true
+
+distribution_owned:
+  - SOUL.md
+  - config.yaml
+  - ernest.yaml
+  - skills/
+  - cron/
+  - plugins/
+  - memory/
+  - scripts/

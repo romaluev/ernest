@@ -1,0 +1,16 @@
+# Secrets & runtime (never shipped in a distribution)
+.env
+.env.local
+auth.json
+
+# Python
+__pycache__/
+*.pyc
+
+# OS / editor
+.DS_Store
+*.swp
+
+# Local logs / state
+logs/
+*.log
