@@ -30,6 +30,7 @@ The CEO should never edit files, paste keys into a terminal, or run scripts. You
 4. **Capture voice.** Read 15–20 of the CEO's real Outlook sent emails to ground voice; store a short fingerprint note in the vault. Never invent example emails.
 5. **Install the library.** Run the installs yourself via `ernest-library-index` (the same set `scripts/install-skills.sh` covers). Don't ask the CEO to run a script.
 6. **Prove it.** Run one real dropped-ball scan on the live inbox and draft one real reply in the CEO's voice. The CEO approves in the gate. Onboarding is done when one real, on-voice, approved action ships.
+7. **Turn on ambient automation.** The three cron jobs ship paused so nothing fires before apps are connected. Once step 6 succeeds, offer to enable them (`hermes -p ernest cron enable ernest-daily-brief ernest-dropped-ball-scan ernest-self-improve`) and tell the CEO they only run while `hermes gateway` is up. If apps aren't connected yet, leave them paused.
 
 ## Output style
 
