@@ -1,0 +1,51 @@
+description: |
+  Ernest - CEO operating clone on Hermes. Connects real apps via Composio,
+  remembers in an Obsidian vault, drafts draft-first in the CEO's voice, and
+  self-improves by composing vetted installed skills.
+
+ernest:
+  role: ceo-clone
+  primary_surface: desktop
+  runtime: hermes
+  source_of_truth: hubspot
+  email_provider: outlook
+  memory_backend: obsidian
+  connector: composio
+
+scope:
+  read:
+    - "**"
+  write:
+    - "memory/**"
+    - "${OBSIDIAN_VAULT_PATH}/**"
+  deny:
+    - "**/.env"
+    - "**/*secret*"
+    - "**/*token*"
+    - "**/private/**"
+
+token_budgets:
+  tier1_max: 9000
+  tier2_max: 2500
+  tier3_per_query_max: 3000
+  tier3_turn_budget: 9000
+
+approval_defaults:
+  reads: 0
+  internal_writes: 1
+  external_drafts: 2
+  external_publish: 2
+  connector_install: 2
+  permission_escalation: 3
+  money_or_legal: 3
+
+quality:
+  north_star:
+    friction_axis: "edit_distance_draft_to_sent"
+    outcome_axis: "reply_or_meeting_or_deal_or_hire"
+  gates:
+    - draft_only
+    - voice_match
+    - claim_grounding
+    - specificity
+    - human_approval
