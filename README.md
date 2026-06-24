@@ -25,6 +25,7 @@ That's the whole setup. No config files to edit, no skills to install by hand. T
 | [docs/use-cases.md](docs/use-cases.md) | The skill library and how to add / scale use-cases |
 | [docs/operations.md](docs/operations.md) | Cron, approvals, audit, update, backup |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Common issues and fixes |
+| [docs/test-matrix.md](docs/test-matrix.md) | 37 edge cases + 55 CEO scenarios with verification status |
 
 ## Layout
 
