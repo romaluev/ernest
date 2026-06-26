@@ -28,11 +28,14 @@ Zero-touch/fleet: pre-seed `ERNEST_COMPOSIO_API_KEY` and `ERNEST_VAULT`, and the
 
 Install and onboarding are a one-time terminal step. After that you work in one of two surfaces:
 
+- **Telegram** — primary CEO surface on VPS. Message Ernest like a teammate; approvals happen inline.
 - **Hermes One desktop app** — chat, read drafts, approve or reject, view memory,
   toggle automations.
-- **Slack or Telegram** — message Ernest like a teammate; approvals happen inline.
+- **Slack** — optional via Composio (task tracking) or Slack gateway if configured later.
 
 The CLI (`ernest chat`) is for install/onboarding and power users only.
+
+**Production VPS:** if the CEO does not install locally, an operator provisions Ubuntu + Telegram gateway on a VPS — real Composio data, always-on, CEO uses Telegram. See **[docs/vps-production.md](docs/vps-production.md)**.
 
 **Watch-first:** crons remind you what slipped (no drafts). You ask or tap **draft
 these** on a card when you want email/CRM content prepared → approve → send. One
@@ -44,7 +47,7 @@ Start here: **[docs/daily-use.md](docs/daily-use.md)**.
 
 | Doc | What it covers |
 |---|---|
-| [docs/daily-use.md](docs/daily-use.md) | **Start here.** Working with Ernest day to day in the desktop app and Slack |
+| [docs/daily-use.md](docs/daily-use.md) | **Start here.** Working with Ernest day to day in Telegram and desktop |
 | [docs/onboarding.md](docs/onboarding.md) | First-run flow: one question, first approved action in about a minute |
 | [docs/faq.md](docs/faq.md) | Capabilities, limits, the safety gate, privacy, which interface to use |
 | [docs/install.md](docs/install.md) | Prerequisites, install, required keys |
@@ -52,6 +55,7 @@ Start here: **[docs/daily-use.md](docs/daily-use.md)**.
 | [docs/architecture.md](docs/architecture.md) | How it's built: the gate, memory, what's reused vs. custom |
 | [docs/use-cases.md](docs/use-cases.md) | The skill library and how to add or scale use cases |
 | [docs/operations.md](docs/operations.md) | Cron, approvals, audit, update, backup |
+| [docs/vps-production.md](docs/vps-production.md) | **Production VPS** — always-on Telegram instance for CEO (real data) |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Common issues and fixes |
 | [docs/test-matrix.md](docs/test-matrix.md) | 37 edge cases + 62 CEO scenarios with verification status |
 
@@ -69,6 +73,7 @@ plugins/           ernest-enforcement (draft-first gate + hygiene exception)
 skills/_meta/      bootstrap · watch · library-index · use-case-author
 skills/playbooks/  8 playbooks (watch + draft halves; hubspot-hygiene cron)
 memory/            standing-concerns template + onboarding seeds
+scripts/           verify · backup · vps-production-bootstrap
 ```
 
 ## What it does out of the box

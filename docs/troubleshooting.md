@@ -8,7 +8,7 @@
 
 ## Model
 
-**"No provider configured" on first chat** — Run `ernest model` to connect by OAuth or key, or add a model key to `~/.hermes/profiles/ernest/.env` (`OPENROUTER_API_KEY` / `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`).
+**"No provider configured" on first chat** — Add `ANTHROPIC_API_KEY` to `~/.hermes/profiles/ernest/.env` and confirm `config.yaml` has `provider: anthropic`.
 
 ## Composio
 

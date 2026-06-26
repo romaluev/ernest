@@ -42,6 +42,7 @@ Standing concerns live in `memory/standing-concerns.md` — CEO sets by asking; 
 | Calendar / scheduling | Outlook Calendar automation | Composio + calendar skill |
 | Team coordination + tasks | Slack automation + Linear/Notion + Hermes kanban | Composio + kanban (bundled) |
 | Sourcing clients & talent | Lead Research Assistant + browser_use (bundled) | install + `hermes plugins enable browser/browser_use` |
+| **Host a site/app Ernest built** | `ernest-railway` + bash on VPS | build in `/tmp/deploy/` or `~/deploy/`, ship via `railway up` |
 | Daily brief / ambient watch | `ernest-watch` + cron | see `cron/jobs.json` |
 | HubSpot mechanical hygiene | `hubspot-hygiene` cron | Mondays 06:00, preview until approved |
 
@@ -49,6 +50,8 @@ Standing concerns live in `memory/standing-concerns.md` — CEO sets by asking; 
 
 | Need | Skill |
 |---|---|
+| CEO setup fallback (blocked: keys, Composio, Railway) | `ernest-ceo-setup` |
+| Onboarding | `ernest-bootstrap` |
 | Write a new high-quality skill | `skill-creator` (Anthropic official) |
 | Optimize existing skills/prompts | Self-Evolution (GEPA + DSPy) |
 | Find weak skills & propose fixes | Hermes Dojo |

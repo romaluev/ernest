@@ -1,7 +1,7 @@
 ---
 name: ernest-watch
 description: Use on the ambient-watch cron and when loading standing concerns. Runs each enabled concern's watch-half (detect + remind only). Writes reminder cards with one-tap draft triggers. Never drafts email, CRM, or sheet content in watch mode.
-version: 1.0.0
+version: 1.1.0
 author: Notiky
 license: MIT
 metadata:
@@ -17,7 +17,7 @@ Config-driven ambient monitoring. Reads `memory/standing-concerns.md` and
 
 ## Rules (non-negotiable)
 
-- **Remind only.** No email drafts, no CRM writes, no sheet edits, no Slack posts.
+- **Remind only.** No email drafts, no CRM writes, no sheet edits, no chat posts with draft content.
 - If a concern is clean, skip it (contribute to `[SILENT]` when all are clean).
 - Real data only; skip concerns whose apps are not connected.
 
@@ -27,8 +27,8 @@ Config-driven ambient monitoring. Reads `memory/standing-concerns.md` and
 2. For each concern, load the named playbook and run its **Watch half** section.
 3. Write one reminder card per non-empty result to `watchers.card_dir` (default
    `Ernest/00-Watch/<concern-id>-<date>.md`).
-4. Optionally mirror summaries to Slack if gateway is configured (reminder text
-   only — no drafts).
+4. Optionally mirror summaries to the CEO's chat (Telegram or Slack) if a gateway
+   is configured — reminder text only, no drafts.
 
 ## Reminder card format
 
@@ -46,7 +46,7 @@ reminder_card:
   draft_params: {}    # pass through to playbook draft-half
 ```
 
-In Slack: post the summary + "Reply **draft these** to have Ernest prepare actions."
+In Telegram or Slack: post the summary + "Reply **draft these** to have Ernest prepare actions."
 In desktop: present the card with a **Draft these** action that sends the trigger phrase.
 
 ## Adding concerns

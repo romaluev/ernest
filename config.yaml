@@ -1,6 +1,6 @@
 model:
-  provider: auto
-  default: anthropic/claude-sonnet-4
+  provider: anthropic
+  default: claude-sonnet-4-6
 
 memory:
   memory_enabled: true
@@ -70,3 +70,8 @@ mcp_servers:
 agent:
   max_turns: 40
   reasoning_effort: medium
+
+terminal:
+  env_passthrough:
+    - RAILWAY_API_TOKEN
+    - RAILWAY_TOKEN

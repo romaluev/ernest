@@ -5,7 +5,7 @@
       "name": "ernest-daily-brief",
       "schedule": { "kind": "cron", "expr": "0 8 * * 1-5", "display": "weekdays at 08:00" },
       "schedule_display": "weekdays at 08:00",
-      "skills": ["ernest-bootstrap", "ernest-watch", "ernest-library-index"],
+      "skills": ["ernest-bootstrap", "ernest-ceo-setup", "ernest-watch", "ernest-library-index"],
       "skill": "ernest-bootstrap",
       "prompt": "Set ERNEST_CRON_JOB=ernest-daily-brief. Read Ernest/00-Watch/ cards from the last 24h and the live inbox, calendar, and HubSpot pipeline. Write a short morning brief to Ernest/00-Daily/. Surface only items needing the CEO today. Remind-only — do not draft email or CRM content. If nothing needs attention, reply [SILENT].",
       "deliver": "local",

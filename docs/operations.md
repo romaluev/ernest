@@ -70,9 +70,10 @@ Preserves `.env`, memories, sessions. Distribution-owned files (SOUL, skills, cr
 
 ```bash
 hermes profile export ernest
+bash scripts/backup-ernest.sh   # VPS: daily cron via vps-production-bootstrap
 ```
 
-Vault: Obsidian sync. HubSpot: source of truth for CRM.
+Vault: Obsidian sync or VPS tarball in `~/ernest-backups/`. HubSpot: source of truth for CRM.
 
 ## Health checks
 

@@ -9,7 +9,7 @@ approved action in ~1 minute. Watch crons and standing concerns come right after
 ernest chat -s ernest-bootstrap
 ```
 
-Only terminal moment. After first reply → desktop or Slack ([daily-use.md](daily-use.md)).
+Only terminal moment. After first reply → Telegram or desktop ([daily-use.md](daily-use.md)).
 
 ## First minute
 

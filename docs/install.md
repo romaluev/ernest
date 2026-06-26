@@ -38,7 +38,7 @@ commands to finish (`ernest model`, `ernest chat -s ernest-bootstrap`).
 
 ## What you'll want ready
 
-- A **model**: an OpenAI/ChatGPT, Anthropic, or Nous Portal login (OAuth — no key needed), *or* an OpenRouter/Anthropic/OpenAI API key if you prefer.
+- A **model**: for Ernest on VPS, set `ANTHROPIC_API_KEY` (direct Claude API). Local dev can use OAuth or an Anthropic key via `ernest model`.
 - A **Composio account** (free tier) for app connections — [dashboard.composio.dev](https://dashboard.composio.dev). Optional at install time; onboarding collects it.
 - **Obsidian** (optional) — the installer creates a `~/ErnestVault` folder if you don't point it at an existing vault.
 
@@ -57,6 +57,21 @@ ernest chat -s ernest-bootstrap
 ```
 
 Set `COMPOSIO_API_KEY` and `OBSIDIAN_VAULT_PATH` in `~/.hermes/profiles/ernest/.env` (the installer writes a `.env.EXAMPLE` you can copy), or let onboarding collect them.
+
+## Production VPS (CEO does not install locally)
+
+For a real, always-on CEO instance with live Outlook/HubSpot data:
+
+1. Operator provisions Ubuntu VPS + Telegram bot + secrets file
+2. One bootstrap command installs Ernest, Telegram gateway (systemd), watch crons, backups, firewall
+3. CEO DMs @YourErnestBot in Telegram — onboarding + Composio OAuth on their accounts
+
+From your Mac (creates Hetzner VPS + installs everything):
+
+```bash
+cp scripts/ernest.secrets.env.example ~/ernest.secrets.env   # fill in
+bash scripts/deploy-ernest.sh --secrets ~/ernest.secrets.env
+```
 
 ## Verify
 

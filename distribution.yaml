@@ -6,18 +6,21 @@ author: Notiky
 license: MIT
 
 env_requires:
-  - name: OPENROUTER_API_KEY
-    description: OpenRouter API key (or set ANTHROPIC_API_KEY / OPENAI_API_KEY instead)
-    required: false
   - name: ANTHROPIC_API_KEY
-    description: Anthropic API key
-    required: false
+    description: Anthropic API key (direct Claude API — Ernest uses provider anthropic)
+    required: true
   - name: COMPOSIO_API_KEY
     description: Composio key — connects HubSpot, Outlook, Slack, Calendar, Gmail (app.composio.dev)
     required: true
   - name: OBSIDIAN_VAULT_PATH
     description: Absolute path to the CEO's Obsidian vault (Ernest's long-term memory)
     required: true
+  - name: RAILWAY_API_TOKEN
+    description: Railway account token (railway.app/account/tokens) — CLI on VPS, no browser
+    required: false
+  - name: RAILWAY_TOKEN
+    description: Railway project token (Project → Settings → Tokens) — headless railway up
+    required: false
 
 distribution_owned:
   - SOUL.md

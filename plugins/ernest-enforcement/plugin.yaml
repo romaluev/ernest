@@ -1,7 +1,8 @@
 name: ernest-enforcement
-version: 2.1.0
-description: Draft-first gate — blocks live sends/publishes/CRM mutations. Bounded exception for mechanical HubSpot hygiene cron only. Filesystem scope enforcement.
+version: 2.2.0
+description: Draft-first gate — blocks live sends/publishes/CRM mutations. Bounded exception for mechanical HubSpot hygiene cron only. Filesystem scope enforcement. Telegram /start onboarding.
 author: Notiky
 kind: standalone
 provides_hooks:
   - pre_tool_call
+  - pre_gateway_dispatch

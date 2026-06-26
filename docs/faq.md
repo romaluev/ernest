@@ -92,12 +92,12 @@ exported as a backup. Because nothing external happens without approval, a "bad
 change" is almost always just a draft you decline — there's nothing to undo. See
 [operations.md](operations.md#update).
 
-### Which interface should I use — desktop, Slack, or CLI?
+### Which interface should I use — desktop, Telegram, or CLI?
 
-- **Desktop app (Hermes One):** your daily home. Chat, approvals, memory,
+- **Telegram (VPS):** primary CEO surface when Ernest runs on a server. Chat, approvals, briefs, reminder cards — all inline.
+- **Desktop app (Hermes One):** your daily home for local installs. Chat, approvals, memory,
   automations in one place.
-- **Slack / Telegram:** when you'd rather just message a teammate, and the home for
-  Slack-driven task tracking. Approvals happen inline.
+- **Slack:** optional — connect via Composio for task tracking in channels, or add a Slack gateway later.
 - **CLI (`ernest chat`):** only for the one-time install/onboarding and for power
   users who like the terminal. You don't need it for daily work.
 

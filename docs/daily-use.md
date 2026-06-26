@@ -1,7 +1,9 @@
 # Daily use
 
-Install is one terminal step. Daily work: **Hermes One desktop** or **Slack/Telegram**.
+Install is one terminal step (or your operator provisions a **production VPS** — see [vps-production.md](vps-production.md)). Daily work: **Telegram** (VPS or local gateway), **Hermes One desktop**, or optionally Slack.
 CLI (`ernest chat`) is install/onboarding and power users only.
+
+**CEO on VPS:** open Telegram → DM @YourErnestBot. Reminder cards, briefs, drafts, and approvals all happen there. No SSH, no CLI.
 
 > Hermes One is a third-party desktop app. Nothing leaves your accounts until you approve — except mechanical HubSpot hygiene after you opt in (see [operations.md](operations.md#hubspot-hygiene)).
 
@@ -27,7 +29,7 @@ Configured once in onboarding ("what should I keep an eye on?") → `memory/stan
 
 Schedule: `ernest-ambient-watch` weekdays 11:00 & 16:00; `ernest-daily-brief` weekday 08:00. Both paused until enabled; need gateway running ([operations.md](operations.md)).
 
-Reminder cards land in `Ernest/00-Watch/` (and Slack if configured). Each card includes **Draft these** — that tap is your ask to prepare actions.
+Reminder cards land in `Ernest/00-Watch/` (and Telegram if configured). Each card includes **Draft these** — that tap is your ask to prepare actions.
 
 ## HubSpot hygiene (Monday cron)
 
@@ -45,9 +47,23 @@ Direct ask or **`draft these`** on a card:
 | "Reconcile Korea with Sam's HubSpot list" | CRM update batch |
 | "Sync press list with this Sheet \<url\>" | Sheet + CRM update batch |
 | "Source ex-Acme founders in the US" | Research list + first-touch drafts |
-| "Turn #deals into who-owns-what" | Tracker + digest drafts |
+| "Turn #deals into who-owns-what" | Tracker + digest drafts (connect Slack via Composio) |
 
 Every draft waits for approval. Reject → Ernest records the correction.
+
+## Build & host (ship something Ernest made)
+
+Ernest runs on the **VPS** (workbench). When you ask to **host** something — a landing page, tool, or microsite — Ernest builds there and deploys to **Railway** (or similar). Ernest itself is not what gets hosted.
+
+| Ask | What happens |
+|---|---|
+| "Build a contacts page for Skolkovo" | Ernest scaffolds on the VPS |
+| "Host it on Railway" / "Put it live" | Ernest runs `railway up` from the VPS → returns the URL |
+| "Update the live site" | Ernest edits the build, redeploys |
+
+Operator sets Railway tokens once on the VPS — see [vps-production.md](vps-production.md#railway-cli-hostinger-vps). You approve before anything goes public if Ernest asks.
+
+**Or paste keys in Telegram** — Ernest saves Railway / Composio / Anthropic keys from chat; no Hostinger access needed.
 
 ## Quick reference
 
@@ -58,5 +74,6 @@ Every draft waits for approval. Reject → Ernest records the correction.
 | Add a watch | Tell Ernest ("watch X"); it updates standing concerns |
 | Turn crons on | Desktop or `hermes -p ernest cron enable …` |
 | Connect an app | Ask Ernest; click authorize link |
+| Add Slack later | Ask Ernest to connect Slack via Composio |
 
 [faq.md](faq.md) · [onboarding.md](onboarding.md) · [troubleshooting.md](troubleshooting.md)
