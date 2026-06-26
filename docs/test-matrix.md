@@ -175,10 +175,10 @@ every send/CRM/sheet/Slack write is gate-VERIFIED (blocked until approval).
 |---|---------|----------|--------|
 | 56 | "Add Manoj to all B2B threads" (my intros slip; he doesn't) | `loop-in-teammate` | playbook present; gate VERIFIED, run NEEDS-LIVE |
 | 57 | "Alua/Limon reach-out — find all real B2B sales/marketing candidates in mail and follow up" | `inbox-prospect-followup` | present; gate VERIFIED, run NEEDS-LIVE |
-| 58 | "Nubank follow-up — find every important contact where I dropped the ball" | `account-followup-recovery` | present; gate VERIFIED, run NEEDS-LIVE |
+| 58 | "Brightpay follow-up — find every important contact where I dropped the ball" | `account-followup-recovery` | present; gate VERIFIED, run NEEDS-LIVE |
 | 59 | "South Korea — sync my email with Alvin's list in HubSpot" | `hubspot-list-reconcile` | present; gate VERIFIED, run NEEDS-LIVE |
 | 60 | "Press list incl TechCrunch (Rebecca) — sync with this Google Sheet" | `sheet-contact-sync` | present; gate VERIFIED, run NEEDS-LIVE |
-| 61 | "Source ex-Skolkovo people in the USA (e.g. these LinkedIn profiles) for partnership/hire" | `contact-sourcing` | present; gate VERIFIED, run NEEDS-LIVE |
+| 61 | "Source ex-NovaLabs people in the USA (e.g. these LinkedIn profiles) for partnership/hire" | `contact-sourcing` | present; gate VERIFIED, run NEEDS-LIVE |
 | 62 | "Globally in Slack: transparent task tracking for the company" | `slack-task-tracking` | present; gate VERIFIED, run NEEDS-LIVE |
 
 All seven ship out of the box (no install) and are draft-first. `verify-ernest.sh`

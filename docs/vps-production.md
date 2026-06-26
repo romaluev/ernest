@@ -182,7 +182,7 @@ su - ernest -c 'bash /opt/ernest/scripts/finish-vps-setup.sh'
 su - ernest -c 'bash /opt/ernest/scripts/railway-verify.sh'
 ```
 
-4. CEO asks in Telegram: *"Deploy skolkovo to Railway"* — Ernest runs `railway up` via Hermes bash on the Hostinger box.
+4. CEO asks in Telegram: *"Deploy novalabs to Railway"* — Ernest runs `railway up` via Hermes bash on the Hostinger box.
 
 **Headless deploy:** `RAILWAY_TOKEN` + `railway up --project <id> --environment production --detach`. No `railway login` browser flow required.
 

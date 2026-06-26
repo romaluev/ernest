@@ -3,7 +3,7 @@
 #
 #   RAILWAY_TOKEN=xxx ./scripts/railway-deploy-headless.sh \
 #     --project 1751c4ef-6369-49ca-837d-d93d3c6a8811 \
-#     --dir /tmp/deploy/skolkovo \
+#     --dir /tmp/deploy/novalabs \
 #     --environment production
 
 set -euo pipefail

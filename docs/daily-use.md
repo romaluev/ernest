@@ -57,7 +57,7 @@ Ernest runs on the **VPS** (workbench). When you ask to **host** something — a
 
 | Ask | What happens |
 |---|---|
-| "Build a contacts page for Skolkovo" | Ernest scaffolds on the VPS |
+| "Build a contacts page for NovaLabs" | Ernest scaffolds on the VPS |
 | "Host it on Railway" / "Put it live" | Ernest runs `railway up` from the VPS → returns the URL |
 | "Update the live site" | Ernest edits the build, redeploys |
 
