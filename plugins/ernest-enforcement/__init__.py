@@ -55,9 +55,50 @@ _MUTATION_VERB_RE = re.compile(
     r"(?i)(?:^|_)(SEND|REPLY|FORWARD|PUBLISH|POST|CREATE|UPDATE|DELETE|REMOVE|"
     r"ARCHIVE|TRASH|MOVE|MERGE|ADD|SET|PATCH|PUT|INVITE|SCHEDULE|CANCEL|ACCEPT|"
     r"DECLINE|ASSIGN|CLOSE|COMPLETE|MARK|UPSERT|IMPORT|UPLOAD|REPLACE|CLEAR|PAY|"
-    r"TRANSFER|SHARE)(?:_|$)"
+    r"TRANSFER|SHARE|LABEL|UNLABEL|COMMENT|DUPLICATE|CHARGE|REFUND|CAPTURE|BILL|"
+    r"PAYOUT|SUBSCRIBE|UNSUBSCRIBE|RENAME|EDIT|GRANT|REVOKE|APPROVE|REJECT|BOOK|"
+    r"ORDER|SUBMIT|DEPLOY|INSTALL|EXECUTE|RUN|TRIGGER|DISPATCH|ENABLE|DISABLE|"
+    r"REACT|PIN|UNPIN|JOIN|LEAVE|KICK|BAN)(?:_|$)"
+)
+_READ_VERB_RE = re.compile(
+    r"(?i)(?:^|_)(GET|LIST|SEARCH|FETCH|READ|FIND|QUERY|RETRIEVE|SCROLL|VIEW|"
+    r"WATCH|DOWNLOAD|EXPORT|RESOLVE|CHECK|ANALYZE|DISPLAY|HEALTH|COUNT|EXIST|"
+    r"LOOKUP|SHOW|DESCRIBE|INSPECT|STATUS|BALANCE|POLL)(?:_|$)"
+)
+# Domains that make an unknown/ambiguous action sensitive -> deny-by-default.
+_SENSITIVE_HINTS = (
+    "gmail", "outlook", "mail", "email", "slack", "teams", "discord", "telegram",
+    "whatsapp", "sms", "twilio", "phone", "call", "hubspot", "salesforce", "crm",
+    "pipedrive", "calendar", "event", "meeting", "contact", "deal", "lead",
+    "notion", "linear", "asana", "jira", "monday", "clickup", "trello", "github",
+    "gitlab", "intercom", "zendesk", "pylon", "sheet", "drive", "box", "dropbox",
+    "stripe", "paypal", "bank", "invoice", "payment", "wire", "payout", "ads",
+    "campaign", "tweet", "twitter", "facebook", "instagram", "linkedin", "publish",
+    "canva", "wordpress", "shopify", "airtable", "confluence",
 )
 _SLUG_SHAPE_RE = re.compile(r"^[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+$")
+
+
+def _norm_slug(slug: str) -> str:
+    return re.sub(r"[\s\-]+", "_", (slug or "").strip()).upper()
+
+
+def _slug_is_read(slug: str) -> bool:
+    s = _norm_slug(slug)
+    return bool(_READ_VERB_RE.search(s)) and not _MUTATION_VERB_RE.search(s)
+
+
+def _slug_is_draft_safe(slug: str) -> bool:
+    s = _norm_slug(slug)
+    if not re.search(r"(?:^|_)DRAFT$", s):
+        return False
+    # ends with DRAFT but carries a transmit verb (e.g. SEND_DRAFT) -> not safe
+    return not (set(s.split("_")) & {"SEND", "PUBLISH", "POST", "FORWARD", "REPLY", "DELETE"})
+
+
+def _name_is_sensitive(name: str) -> bool:
+    blob = (name or "").lower()
+    return any(h in blob for h in _SENSITIVE_HINTS)
 _SLUG_KEYS = {
     "tool_slug", "slug", "tool", "tool_name", "toolname", "action",
     "action_name", "recipe_slug", "name", "function", "function_name",
@@ -236,8 +277,10 @@ def _hygiene_may_auto_apply(
 
 
 def _slug_is_mutation(slug: str) -> bool:
-    s = (slug or "").upper()
-    if "DRAFT" in s:  # CREATE_*_DRAFT etc. — drafting is allowed
+    if _slug_is_draft_safe(slug):  # CREATE_*_DRAFT etc. — drafting is allowed
+        return False
+    s = _norm_slug(slug)
+    if _slug_is_read(slug):
         return False
     return bool(_MUTATION_VERB_RE.search(s))
 
@@ -387,7 +430,31 @@ def _draft_only_block(
                 }
         return None
 
-    # 3. Directly-named connector tools (defense in depth).
+    # 3. Directly-named connector tools — DENY-BY-DEFAULT on connector domains.
+    #    Filesystem tools (write_file/edit_file/...) contain mutation verbs too but
+    #    are handled by the scope guard, NOT here — so only connector-domain
+    #    (sensitive) names get the mutation/deny-by-default treatment.
+    if _name_is_sensitive(name):
+        for slug in [name] + list(_collect_slugs(args or {})):
+            if _slug_is_draft_safe(slug):
+                continue
+            if _slug_is_mutation(slug):
+                return {
+                    "error": "draft_only",
+                    "tool": name,
+                    "action": slug,
+                    "reason": f"Live mutation '{slug}' blocked until CEO approval (draft-first).",
+                }
+        if not _slug_is_read(name) and not _slug_is_draft_safe(name):
+            return {
+                "error": "draft_only",
+                "tool": name,
+                "reason": f"Unrecognized action on sensitive connector '{name}' blocked "
+                          "(deny-by-default) until CEO approval.",
+            }
+        return None
+
+    # 4. Non-connector tools: defense-in-depth name patterns only.
     for pattern in _DRAFT_BLOCK_PATTERNS:
         if pattern.search(name):
             return {
@@ -455,7 +522,75 @@ def _draft_pre_tool_call(
     }
 
 
+def _onboarded_marker_path() -> Optional[str]:
+    """Path to Ernest/.onboarded in the Obsidian vault."""
+    vault = os.environ.get("OBSIDIAN_VAULT_PATH", "")
+    if not vault:
+        env_path = os.path.join(_profile_root() or "", ".env")
+        if env_path and os.path.isfile(env_path):
+            try:
+                for line in open(env_path, encoding="utf-8"):
+                    if line.startswith("OBSIDIAN_VAULT_PATH="):
+                        vault = line.split("=", 1)[1].strip().strip('"').strip("'")
+                        break
+            except OSError:
+                pass
+    if not vault:
+        vault = os.path.expanduser("~/ErnestVault")
+    return os.path.join(vault, "Ernest", ".onboarded")
+
+
+def _is_onboarded() -> bool:
+    marker = _onboarded_marker_path()
+    return bool(marker and os.path.isfile(marker))
+
+
+_START_RE = re.compile(r"^/start(?:@\w+)?\s*$", re.IGNORECASE)
+
+_FULL_ONBOARD_KICKOFF = (
+    "[CEO pressed Start — first contact. Run first-contact onboarding per SOUL: "
+    "be warm, concise, and genuinely useful. Greet as Ernest; convey your full "
+    "range in plain language (inbox, follow-ups, CRM, calendar, sourcing, Slack); "
+    "send HubSpot/Outlook/Slack connect links via COMPOSIO_MANAGE_CONNECTIONS; "
+    "ask who they are and what they want off their plate. Draft-first always.]"
+)
+
+_WELCOME_BACK = (
+    "[CEO pressed Start — already onboarded. Greet them briefly, remind them you "
+    "watch and draft on ask, and ask what they want to work on today.]"
+)
+
+
+def _start_pre_gateway_dispatch(
+    event=None,
+    gateway=None,
+    session_store=None,
+    **_kw: Any,
+) -> Optional[Dict[str, str]]:
+    """Rewrite Telegram /start into Ernest onboarding kickoff (before unknown-command guard)."""
+    try:
+        text = (getattr(event, "text", None) or "").strip()
+        if not _START_RE.match(text):
+            return None
+
+        source = getattr(event, "source", None)
+        platform = getattr(getattr(source, "platform", None), "value", None)
+        if platform and platform != "telegram":
+            return None
+
+        if _is_onboarded():
+            logger.info("ernest-enforcement: /start -> welcome-back (onboarded)")
+            return {"action": "rewrite", "text": _WELCOME_BACK}
+
+        logger.info("ernest-enforcement: /start -> full onboarding kickoff")
+        return {"action": "rewrite", "text": _FULL_ONBOARD_KICKOFF}
+    except Exception as exc:
+        logger.warning("ernest-enforcement: pre_gateway_dispatch error: %s", exc)
+        return None
+
+
 def register(ctx) -> None:
     ctx.register_hook("pre_tool_call", _draft_pre_tool_call)
     ctx.register_hook("pre_tool_call", _scope_pre_tool_call)
-    logger.debug("ernest-enforcement: registered draft-only + scope gate")
+    ctx.register_hook("pre_gateway_dispatch", _start_pre_gateway_dispatch)
+    logger.debug("ernest-enforcement: registered draft-only + scope gate + /start hook")

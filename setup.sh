@@ -35,12 +35,32 @@ command -v git >/dev/null 2>&1 || {
 }
 
 # 1 — Hermes runtime (skipped if already present; it brings its own Python/Node)
+# Supply-chain hardening: don't pipe a remote script straight into a shell. Download
+# it, optionally verify a pinned SHA-256 (ERNEST_HERMES_SHA256), then run it.
 if ! command -v hermes >/dev/null 2>&1; then
   bold "Installing Hermes (one time)…"
-  curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+  HERMES_URL="${ERNEST_HERMES_INSTALLER_URL:-https://hermes-agent.nousresearch.com/install.sh}"
+  HERMES_INSTALLER="$(mktemp "${TMPDIR:-/tmp}/hermes-install.XXXXXX")"
+  curl -fsSL "$HERMES_URL" -o "$HERMES_INSTALLER" || { echo "Could not download the Hermes installer from $HERMES_URL." >&2; rm -f "$HERMES_INSTALLER"; exit 1; }
+  if [ -n "${ERNEST_HERMES_SHA256:-}" ]; then
+    if ! printf '%s  %s\n' "$ERNEST_HERMES_SHA256" "$HERMES_INSTALLER" | shasum -a 256 -c - >/dev/null 2>&1; then
+      echo "Hermes installer checksum mismatch — aborting (supply-chain guard)." >&2
+      rm -f "$HERMES_INSTALLER"; exit 1
+    fi
+    dim "Hermes installer verified against pinned SHA-256."
+  else
+    dim "Tip: pin the installer with ERNEST_HERMES_SHA256=<sha> for supply-chain hardening."
+  fi
+  bash "$HERMES_INSTALLER"; rm -f "$HERMES_INSTALLER"
   export PATH="$HOME/.local/bin:$PATH"
 fi
 command -v hermes >/dev/null 2>&1 || { echo "Hermes install did not put 'hermes' on PATH. Open a new terminal and re-run." >&2; exit 1; }
+# Version floor — Ernest's distribution.yaml requires Hermes >= this.
+HERMES_MIN="${ERNEST_HERMES_MIN:-0.12.0}"
+HV="$(hermes --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)"
+if [ -n "$HV" ] && [ "$(printf '%s\n%s\n' "$HERMES_MIN" "$HV" | sort -t. -k1,1n -k2,2n -k3,3n | head -1)" != "$HERMES_MIN" ]; then
+  dim "Note: Hermes $HV is below the expected floor $HERMES_MIN; update Hermes if you hit issues."
+fi
 
 # 2 — Ernest profile (identity, config, skills, playbooks, cron — all baked in).
 # --force refreshes in place; .env / memories / sessions are preserved.

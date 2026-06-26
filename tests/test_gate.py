@@ -65,6 +65,14 @@ MUST_BLOCK = [
     ("hubspot_update_deal", {}),
     ("slack_post_message", {}),
     ("gmail_reply", {}),
+    # deny-by-default closers: directly-named connectors with no pattern match
+    ("STRIPE_CHARGE", {}),                                                    # money verb
+    ("STRIPE_CREATE_CHARGE", {}),
+    ("NOTION_UPDATE_PAGE", {}),                                               # no old pattern matched it
+    ("NOTION-UPDATE-PAGE", {}),                                              # hyphen variant normalized
+    ("NOTION_DO_WEIRD_THING", {}),                                            # unknown verb on sensitive -> deny
+    ("GMAIL_SEND_DRAFT", {}),                                                 # draft-laundering: sends a draft
+    ("STRIPE_REFUND", {}),
 ]
 for tool, args in MUST_BLOCK:
     check(f"{tool} {args}", blocked(tool, args))
@@ -85,6 +93,12 @@ MUST_ALLOW = [
     ("COMPOSIO_EXECUTE_TOOL", {"tool_slug": "GOOGLECALENDAR_GET_EVENTS"}),
     ("read_file", {"path": "SOUL.md"}),                                       # governed by scope, not draft
     ("write_file", {"path": "memory/x.md"}),
+    # directly-named connector reads + drafts still pass under deny-by-default
+    ("STRIPE_GET_BALANCE", {}),
+    ("NOTION_FETCH_PAGE", {}),
+    ("HUBSPOT_SEARCH_CONTACTS", {}),
+    ("GMAIL_CREATE_DRAFT", {}),
+    ("GMAIL_CREATE_EMAIL_DRAFT", {}),
 ]
 # NOTE: GET_TOOL_SCHEMAS args contain GMAIL_SEND_EMAIL as a *string to inspect*, not an
 # execution — and the wrapper isn't an exec tool, so args aren't scanned. Must still allow.
@@ -235,9 +249,58 @@ try:
 finally:
     shutil.rmtree(_hy_tmp, ignore_errors=True)
 
+# ── Telegram /start pre_gateway_dispatch hook ───────────────────────────────
+print("pre_gateway_dispatch — /start onboarding hook:")
+import types
+import tempfile
+
+_start_checks = 0
+
+
+def _mock_event(text, platform="telegram"):
+    return types.SimpleNamespace(
+        text=text,
+        source=types.SimpleNamespace(
+            platform=types.SimpleNamespace(value=platform)
+        ),
+    )
+
+
+_vault_tmp = tempfile.mkdtemp(prefix="ernest-vault-")
+try:
+    os.environ["OBSIDIAN_VAULT_PATH"] = _vault_tmp
+    os.makedirs(os.path.join(_vault_tmp, "Ernest"), exist_ok=True)
+
+    r = enf._start_pre_gateway_dispatch(event=_mock_event("/start"))
+    _start_checks += 1
+    check("/start -> rewrite kickoff when not onboarded",
+          isinstance(r, dict) and r.get("action") == "rewrite" and "first contact" in r["text"].lower())
+
+    r2 = enf._start_pre_gateway_dispatch(event=_mock_event("/start@ernest_agibot"))
+    _start_checks += 1
+    check("/start@bot -> rewrite kickoff",
+          isinstance(r2, dict) and r2.get("action") == "rewrite")
+
+    r3 = enf._start_pre_gateway_dispatch(event=_mock_event("hello"))
+    _start_checks += 1
+    check("non-/start -> no rewrite", r3 is None)
+
+    r4 = enf._start_pre_gateway_dispatch(event=_mock_event("/start", platform="slack"))
+    _start_checks += 1
+    check("/start on slack -> no rewrite (telegram only)", r4 is None)
+
+    open(os.path.join(_vault_tmp, "Ernest", ".onboarded"), "w").write("ok\n")
+    r5 = enf._start_pre_gateway_dispatch(event=_mock_event("/start"))
+    _start_checks += 1
+    check("/start when onboarded -> welcome-back",
+          isinstance(r5, dict) and r5.get("action") == "rewrite" and "already onboarded" in r5["text"].lower())
+finally:
+    os.environ.pop("OBSIDIAN_VAULT_PATH", None)
+    shutil.rmtree(_vault_tmp, ignore_errors=True)
+
 print()
 total = (
-    len(MUST_BLOCK) + len(MUST_ALLOW) + len(SCOPE_BLOCK) + len(SCOPE_ALLOW) + 2 + 2 + 5
+    len(MUST_BLOCK) + len(MUST_ALLOW) + len(SCOPE_BLOCK) + len(SCOPE_ALLOW) + 2 + 2 + 5 + _start_checks
 )
 if failures:
     print(f"FAILED {len(failures)}/{total}:")
