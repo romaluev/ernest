@@ -125,6 +125,16 @@ export ERNEST_COMPOSIO_API_KEY="${COMPOSIO_API_KEY}"
 export ERNEST_VAULT="${ERNEST_VAULT:-$HOME/ErnestVault}"
 mkdir -p "$ERNEST_VAULT/Ernest"
 
+# Seed a minimal VALID Obsidian vault so the obsidian MCP (memory backend) starts
+# on a fresh box. The obsidian-mcp package refuses a directory without a parseable
+# .obsidian/ config ("Not a valid Obsidian vault"), which silently degrades memory.
+if [ ! -d "$ERNEST_VAULT/.obsidian" ]; then
+  mkdir -p "$ERNEST_VAULT/.obsidian"
+  printf '{}' > "$ERNEST_VAULT/.obsidian/app.json"
+  printf '{}' > "$ERNEST_VAULT/.obsidian/appearance.json"
+  printf '[]' > "$ERNEST_VAULT/.obsidian/core-plugins.json"
+fi
+
 # Headless Ernest install
 LOCAL_REPO="__LOCAL_REPO__"
 if [[ -n "$LOCAL_REPO" && -f "$LOCAL_REPO/setup.sh" ]]; then
@@ -209,7 +219,10 @@ INSTALL_BODY="${INSTALL_BODY/__ENABLE_CRONS__/$ENABLE_CRONS}"
 INSTALL_BODY="${INSTALL_BODY/__SKIP_BACKUP__/$SKIP_BACKUP_CRON}"
 INSTALL_BODY="${INSTALL_BODY/__LOCAL_REPO__/$LOCAL_REPO}"
 
-run_as "$INSTALL_BODY"
+# Best-effort: a non-zero from a connector self-test (e.g. `mcp test composio`)
+# must NOT abort the script before the boot-time systemd install below — that is
+# the step that makes Ernest survive reboots. Guard it so install always proceeds.
+run_as "$INSTALL_BODY" || echo "WARN: install steps returned non-zero; continuing to systemd install."
 
 # System-level gateway (boot-time) — requires root
 if [[ "$(id -u)" -eq 0 ]] && command -v systemctl >/dev/null 2>&1; then
